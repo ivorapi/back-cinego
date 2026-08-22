@@ -7,7 +7,9 @@ import com.uade.demo.service.FuncionServices;
 import com.uade.demo.model.Funcion;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
@@ -22,5 +24,10 @@ public class FuncionController {
     @GetMapping
     public List<Funcion> getAllFunciones() {
         return funcionServices.getAllFunciones();
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFuncion(@PathVariable Long id) {
+        funcionServices.deleteFuncion(id);
     }
 }

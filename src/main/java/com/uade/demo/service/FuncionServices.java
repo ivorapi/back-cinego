@@ -16,4 +16,7 @@ public class FuncionServices {
     public List<Funcion> getAllFunciones() {
         return funcionRepository.findAll();
     }
+    public void deleteFuncion(Long id) {
+        funcionRepository.deleteById(id);
+    }
 }
