@@ -22,8 +22,17 @@ public class Peliculas {
     @Column(nullable = false, length = 150)
     private String titulo;
 
-    @Column(name = "duracion_minutos", nullable = false)
-    private Integer duracionMinutos;
+    @Column(nullable = false)
+    private int duracion;
+
+    @Column(nullable = false)
+    private double clasificacion;
+
+    @Column(columnDefinition = "TEXT")
+    private String sinopsis;
+
+    @Column(name = "poster_url", length = 255)
+    private String posterUrl;
 
     @JsonIgnore
     @OneToMany(mappedBy = "pelicula")

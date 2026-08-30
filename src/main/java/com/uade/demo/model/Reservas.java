@@ -1,7 +1,11 @@
 package com.uade.demo.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,20 +29,48 @@ public class Reservas {
     @JoinColumn(name = "funcion_id", nullable = false)
     private Funcion funcion;
 
-    @Column(name = "cantidad_entradas", nullable = false)
-    private Integer cantidadEntradas;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private EstadoReserva estado = EstadoReserva.CONFIRMADA;
+    private EstadoReserva estado = EstadoReserva.PENDIENTE;
 
-    @Column(name = "fecha_reserva", nullable = false, updatable = false)
-    private LocalDateTime fechaReserva;
+    @Column(name = "creada_en", nullable = false, updatable = false)
+    private LocalDateTime creadaEn;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal total;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "reserva")
+    private List<Entrada> entradas = new ArrayList<>();
 
     @PrePersist
-    void asignarFechaReserva() {
-        if (fechaReserva == null) {
-            fechaReserva = LocalDateTime.now();
+    void asignarValoresIniciales() {
+        if (creadaEn == null) {
+            creadaEn = LocalDateTime.now();
         }
+        if (estado == null) {
+            estado = EstadoReserva.PENDIENTE;
+        }
+    }
+
+    public BigDecimal getTotal() {
+        if (total != null) {
+            return total;
+        }
+        if (entradas != null && !entradas.isEmpty()) {
+            return entradas.stream()
+                    .map(Entrada::getPrecio)
+                    .filter(java.util.Objects::nonNull)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public Long getUsuarioId() {
+        return usuario != null ? usuario.getId() : null;
+    }
+
+    public Long getFuncionId() {
+        return funcion != null ? funcion.getId() : null;
     }
 }
