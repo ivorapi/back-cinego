@@ -19,8 +19,12 @@ public class Salas {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Integer butacas;
+    @Column(nullable = false, length = 100)
+    private String nombre;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "sala")
+    private List<Asiento> asientos = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "sala")

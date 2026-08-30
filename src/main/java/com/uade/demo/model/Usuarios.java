@@ -19,14 +19,17 @@ public class Usuarios {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String apellido;
 
-    @Column(nullable = false, unique = true, length = 100)
-    private String mail;
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
 
     @JsonIgnore
     @OneToMany(mappedBy = "usuario")
