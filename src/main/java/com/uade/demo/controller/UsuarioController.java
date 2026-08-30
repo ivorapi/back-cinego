@@ -18,20 +18,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
-
-
-    
 
     private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
+
     // devolver a todos los usuarios
     // get localhost:8080/api/usuarios
     @GetMapping
@@ -52,12 +48,11 @@ public class UsuarioController {
 
     //crear usuario
     // post localhost:8080/api/usuarios
-    
     @PostMapping
     public ResponseEntity<Usuarios> createUsuario(@RequestBody Usuarios usuario) {
 
-        if (usuario.getMail() == null || usuario.getMail().isEmpty()) {
-            throw new IllegalArgumentException("El mail del usuario es requerido");
+        if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("El email del usuario es requerido");
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.save(usuario));
@@ -65,16 +60,18 @@ public class UsuarioController {
 
     //actualizar usuario por id
     // put localhost:8080/api/usuarios/1
-    
     @PutMapping("/{id}")
     public Usuarios updateUsuario(@PathVariable Long id, @RequestBody Usuarios usuario) {
         Usuarios existingUsuario = usuarioService.findById(id);
         if (existingUsuario != null) {
             // existingUsuario.setUsername(usuario.getUsername());
-            existingUsuario.setMail(usuario.getMail());
+            existingUsuario.setEmail(usuario.getEmail());
             // existingUsuario.setPassword(usuario.getPassword());
             existingUsuario.setNombre(usuario.getNombre());
             existingUsuario.setApellido(usuario.getApellido());
+            if (usuario.getPasswordHash() != null) {
+                existingUsuario.setPasswordHash(usuario.getPasswordHash());
+            }
             return usuarioService.save(existingUsuario);
         } else {
             return null;
@@ -83,7 +80,6 @@ public class UsuarioController {
 
     //borrar usuario por id
     // delete localhost:8080/api/usuarios/1
-
     @DeleteMapping("/{id}")
     public void deleteUsuario(@PathVariable Long id) {
         usuarioService.deleteById(id);
