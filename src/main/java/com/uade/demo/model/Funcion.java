@@ -16,17 +16,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "funciones", uniqueConstraints = @UniqueConstraint(
-    name = "uk_funcion_sala_fecha", columnNames = {"sala_id", "fecha_hora"}))
+    name = "uk_funcion_sala_horario", columnNames = {"sala_id", "horario_inicio"}))
 public class Funcion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "fecha_hora", nullable = false)
-    private LocalDateTime fechaHora;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal precio;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "pelicula_id", nullable = false)
@@ -36,7 +30,25 @@ public class Funcion {
     @JoinColumn(name = "sala_id", nullable = false)
     private Salas sala;
 
+    @Column(name = "horario_inicio", nullable = false)
+    private LocalDateTime horarioInicio;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal precio;
+
     @JsonIgnore
     @OneToMany(mappedBy = "funcion")
     private List<Reservas> reservas = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "funcion")
+    private List<Entrada> entradas = new ArrayList<>();
+
+    public Long getPeliculaId() {
+        return pelicula != null ? pelicula.getId() : null;
+    }
+
+    public Long getSalaId() {
+        return sala != null ? sala.getId() : null;
+    }
 }
