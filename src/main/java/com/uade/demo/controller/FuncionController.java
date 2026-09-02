@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.demo.service.FuncionServices;
 
 import com.uade.demo.model.Funcion;
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RestController
 @RequestMapping("/funciones")
 public class FuncionController {
-    private final FuncionServices funcionServices; 
+    private final FuncionServices funcionServices;
 
     public FuncionController(FuncionServices funcionServices) {
         this.funcionServices = funcionServices;
@@ -29,5 +30,10 @@ public class FuncionController {
     @DeleteMapping("/{id}")
     public void deleteFuncion(@PathVariable Long id) {
         funcionServices.deleteFuncion(id);
+    }
+
+    @GetMapping("/{id}/precio-final")
+    public BigDecimal getPrecioFinal(@PathVariable Long id) {
+        return funcionServices.calcularPrecioFinal(id);
     }
 }
