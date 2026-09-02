@@ -32,21 +32,21 @@ public class DescuentoService {
         this.descuentoFactory = descuentoFactory;
     }
 
-    public Descuento crear(DescuentoRequestDTO dto) {
-        if (dto.getNombre() == null || dto.getNombre().isBlank()) {
+    public Descuento crear(DescuentoRequestDTO body) {
+        if (body.getNombre() == null || body.getNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre del descuento es requerido");
         }
-        if (dto.getPorcentaje() < 0 || dto.getPorcentaje() > 100) {
+        if (body.getPorcentaje() < 0 || body.getPorcentaje() > 100) {
             throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 100");
         }
 
         Descuento descuento = new Descuento();
-        descuento.setNombre(dto.getNombre());
-        descuento.setPorcentaje(dto.getPorcentaje());
-        descuento.setAplicaATodas(dto.isAplicaATodas());
+        descuento.setNombre(body.getNombre());
+        descuento.setPorcentaje(body.getPorcentaje());
+        descuento.setAplicaATodas(body.isAplicaATodas());
 
-        if (!dto.isAplicaATodas() && dto.getPeliculaIds() != null && !dto.getPeliculaIds().isEmpty()) {
-            descuento.setPeliculas(peliculaRepository.findAllById(dto.getPeliculaIds()));
+        if (!body.isAplicaATodas() && body.getPeliculaIds() != null && !body.getPeliculaIds().isEmpty()) {
+            descuento.setPeliculas(peliculaRepository.findAllById(body.getPeliculaIds()));
         }
 
         return descuentoRepository.save(descuento);
