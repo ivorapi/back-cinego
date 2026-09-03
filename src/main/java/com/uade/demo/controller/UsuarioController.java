@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.service.UsuarioService;
+import com.uade.dto.LoginRequestDTO;
+import com.uade.dto.RegistroRequestDTO;
 
 import java.util.List;
 
@@ -90,6 +92,22 @@ public class UsuarioController {
     @DeleteMapping
     public void deleteAllUsuarios() {
         usuarioService.deleteAll();
+    }
+
+    //registrar usuario nuevo
+    // post localhost:8080/api/usuarios/registro
+    @PostMapping("/registro")
+    public ResponseEntity<Usuarios> registrarUsuario(@RequestBody RegistroRequestDTO request) {
+        Usuarios usuarioCreado = usuarioService.registrar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCreado);
+    }
+
+    //login de usuario
+    // post localhost:8080/api/usuarios/login
+    @PostMapping("/login")
+    public ResponseEntity<Usuarios> loginUsuario(@RequestBody LoginRequestDTO request) {
+        Usuarios usuario = usuarioService.login(request);
+        return ResponseEntity.ok(usuario);
     }
 
 }
