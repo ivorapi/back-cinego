@@ -1,7 +1,6 @@
 package com.uade.demo.Controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.demo.Models.UsuarioModel;
 import com.uade.demo.Services.UsuarioService;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 
-@RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 

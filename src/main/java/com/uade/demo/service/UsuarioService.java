@@ -1,12 +1,15 @@
-package com.uade.demo.Services;
+package com.uade.demo.service;
 
 import java.util.List;
 
-import com.uade.demo.Models.UsuarioModel;
-import com.uade.demo.Repository.UsuarioRepository;
+import org.springframework.stereotype.Service;
+
+import com.uade.demo.model.Usuarios;
+import com.uade.demo.repository.UsuarioRepository;
 
 import jakarta.transaction.Transactional;
 
+@Service
 @Transactional
 public class UsuarioService {
 
@@ -16,15 +19,15 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public List<UsuarioModel> findAll() {
+    public List<Usuarios> findAll() {
         return usuarioRepository.findAll();
     }
     
-    public UsuarioModel findById(Long id) {
+    public Usuarios findById(Long id) {
         return usuarioRepository.findById(id).orElse(null);
     }
 
-    public UsuarioModel save(UsuarioModel usuario) {
+    public Usuarios save(Usuarios usuario) {
         return usuarioRepository.save(usuario);
     }
 
