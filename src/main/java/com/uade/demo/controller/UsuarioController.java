@@ -1,5 +1,6 @@
 package com.uade.demo.controller;
 
+import com.uade.demo.dto.CrearAdminRequestDTO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -105,9 +106,17 @@ public class UsuarioController {
     //login de usuario
     // post localhost:8080/api/usuarios/login
     @PostMapping("/login")
-    public ResponseEntity<Usuarios> loginUsuario(@RequestBody LoginRequestDTO request) {
-        Usuarios usuario = usuarioService.login(request);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<String> loginUsuario(@RequestBody LoginRequestDTO request) {
+        String token = usuarioService.login(request);
+        return ResponseEntity.ok(token);
+    }
+
+    // crear un usuario admin (sin autenticacion todavia, pendiente proteger con SUPER_ADMIN)
+    // post localhost:8080/api/usuarios/crearAdmin
+    @PostMapping("/crear-admin")
+    public ResponseEntity<Usuarios> crearAdmin(@RequestBody CrearAdminRequestDTO request) {
+        Usuarios adminCreado = usuarioService.crearAdmin(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminCreado);
     }
 
 }

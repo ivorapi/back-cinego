@@ -38,6 +38,10 @@ public class Usuarios {
     @Column(length = 20)
     private String sexo;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Rol rol;
+
     @JsonIgnore
     @OneToMany(mappedBy = "usuario")
     private List<Reservas> reservas = new ArrayList<>();
