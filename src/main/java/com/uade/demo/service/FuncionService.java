@@ -7,10 +7,10 @@ import com.uade.demo.repository.FuncionRepository;
 
 
 @Service
-public class FuncionServices {
+public class FuncionService {
     private final FuncionRepository funcionRepository;
 
-    public FuncionServices(FuncionRepository funcionRepository) {
+    public FuncionService(FuncionRepository funcionRepository) {
         this.funcionRepository = funcionRepository;
     }
     public List<Funcion> getAllFunciones() {
