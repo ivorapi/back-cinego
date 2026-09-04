@@ -1,4 +1,4 @@
-package com.uade.dto;
+package com.uade.demo.dto;
 
 import lombok.Data;
 
