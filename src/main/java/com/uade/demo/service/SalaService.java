@@ -4,6 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.uade.demo.dto.SalaRequestDTO;
+import com.uade.demo.dto.SalaResponseDTO;
+import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Salas;
 import com.uade.demo.repository.SalaRepository;
 
@@ -19,16 +22,28 @@ public class SalaService {
         this.salaRepository = salaRepository;
     }
 
-    public List<Salas> findAll() {
-        return salaRepository.findAll();
+    public List<SalaResponseDTO> findAll() {
+        return salaRepository.findAll().stream()
+                .map(SalaResponseDTO::new)
+                .toList();
     }
 
-    public Salas findById(Long id) {
-        return salaRepository.findById(id).orElse(null);
+    public SalaResponseDTO findById(Long id) {
+        return new SalaResponseDTO(buscarOFallar(id));
     }
 
-    public Salas save(Salas sala) {
-        return salaRepository.save(sala);
+    public SalaResponseDTO save(SalaRequestDTO dto) {
+        validar(dto);
+        Salas sala = new Salas();
+        sala.setNombre(dto.getNombre());
+        return new SalaResponseDTO(salaRepository.save(sala));
+    }
+
+    public SalaResponseDTO update(Long id, SalaRequestDTO dto) {
+        validar(dto);
+        Salas existente = buscarOFallar(id);
+        existente.setNombre(dto.getNombre());
+        return new SalaResponseDTO(salaRepository.save(existente));
     }
 
     public void deleteById(Long id) {
@@ -37,5 +52,16 @@ public class SalaService {
 
     public void deleteAll() {
         salaRepository.deleteAll();
+    }
+
+    private Salas buscarOFallar(Long id) {
+        return salaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la sala con id: " + id));
+    }
+
+    private void validar(SalaRequestDTO dto) {
+        if (dto.getNombre() == null || dto.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre de la sala es requerido");
+        }
     }
 }
