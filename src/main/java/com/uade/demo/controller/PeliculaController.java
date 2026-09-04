@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,7 @@ public class PeliculaController {
 
     // crear pelicula
     // post localhost:8080/api/peliculas
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PostMapping
     public ResponseEntity<PeliculaResponseDTO> createPelicula(@RequestBody PeliculaRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(peliculaService.save(dto));
@@ -50,6 +52,7 @@ public class PeliculaController {
 
     // actualizar pelicula por id
     // put localhost:8080/api/peliculas/1
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<PeliculaResponseDTO> updatePelicula(@PathVariable Long id,
             @RequestBody PeliculaRequestDTO dto) {
@@ -58,6 +61,7 @@ public class PeliculaController {
 
     // borrar pelicula por id
     // delete localhost:8080/api/peliculas/1
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePelicula(@PathVariable Long id) {
         peliculaService.deleteById(id);
@@ -66,6 +70,7 @@ public class PeliculaController {
 
     // eliminar todas las peliculas
     // delete localhost:8080/api/peliculas
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping
     public ResponseEntity<Void> deleteAllPeliculas() {
         peliculaService.deleteAll();
