@@ -3,11 +3,11 @@ package com.uade.demo.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.demo.dto.LoginRequestDTO;
+import com.uade.demo.dto.RegistroRequestDTO;
 import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.service.UsuarioService;
-import com.uade.dto.LoginRequestDTO;
-import com.uade.dto.RegistroRequestDTO;
 
 import java.util.List;
 

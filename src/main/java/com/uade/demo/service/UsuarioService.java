@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.uade.demo.dto.LoginRequestDTO;
+import com.uade.demo.dto.RegistroRequestDTO;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.repository.UsuarioRepository;
-import com.uade.dto.LoginRequestDTO;
-import com.uade.dto.RegistroRequestDTO;
 
 import jakarta.transaction.Transactional;
 
