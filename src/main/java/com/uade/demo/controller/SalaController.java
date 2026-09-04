@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uade.demo.exception.ResourceNotFoundException;
-import com.uade.demo.model.Salas;
+import com.uade.demo.dto.SalaRequestDTO;
+import com.uade.demo.dto.SalaResponseDTO;
 import com.uade.demo.service.SalaService;
 
 @RestController
@@ -31,58 +31,48 @@ public class SalaController {
     // devolver todas las salas
     // get localhost:8080/api/salas
     @GetMapping
-    public List<Salas> getAllSalas() {
-        return salaService.findAll();
+    public ResponseEntity<List<SalaResponseDTO>> getAllSalas() {
+        return ResponseEntity.ok(salaService.findAll());
     }
 
     // buscar por id
     // get localhost:8080/api/salas/1
     @GetMapping("/{id}")
-    public ResponseEntity<Salas> getSalaById(@PathVariable Long id) {
-        Salas sala = salaService.findById(id);
-        if (sala == null) {
-            throw new ResourceNotFoundException("No se encontró la sala con id: " + id);
-        }
-        return ResponseEntity.ok(sala);
+    public ResponseEntity<SalaResponseDTO> getSalaById(@PathVariable Long id) {
+        return ResponseEntity.ok(salaService.findById(id));
     }
 
     // crear sala
     // post localhost:8080/api/salas
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PostMapping
-    public ResponseEntity<Salas> createSala(@RequestBody Salas sala) {
-        if (sala.getNombre() == null || sala.getNombre().isEmpty()) {
-            throw new IllegalArgumentException("El nombre de la sala es requerido");
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(salaService.save(sala));
+    public ResponseEntity<SalaResponseDTO> createSala(@RequestBody SalaRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(salaService.save(dto));
     }
 
     // actualizar sala por id
     // put localhost:8080/api/salas/1
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PutMapping("/{id}")
-    public Salas updateSala(@PathVariable Long id, @RequestBody Salas sala) {
-        Salas existente = salaService.findById(id);
-        if (existente == null) {
-            throw new ResourceNotFoundException("No se encontró la sala con id: " + id);
-        }
-        existente.setNombre(sala.getNombre());
-        return salaService.save(existente);
+    public ResponseEntity<SalaResponseDTO> updateSala(@PathVariable Long id, @RequestBody SalaRequestDTO dto) {
+        return ResponseEntity.ok(salaService.update(id, dto));
     }
 
     // borrar sala por id
     // delete localhost:8080/api/salas/1
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteSala(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSala(@PathVariable Long id) {
         salaService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     // eliminar todas las salas
     // delete localhost:8080/api/salas
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping
-    public void deleteAllSalas() {
+    public ResponseEntity<Void> deleteAllSalas() {
         salaService.deleteAll();
+        return ResponseEntity.noContent().build();
     }
 }
