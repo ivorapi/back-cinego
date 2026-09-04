@@ -1,5 +1,6 @@
 package com.uade.demo.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,12 @@ public class Usuarios {
 
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
+
+    @Column(name = "fecha_nacimiento")
+    private LocalDate fechaNacimiento;
+
+    @Column(length = 20)
+    private String sexo;
 
     @JsonIgnore
     @OneToMany(mappedBy = "usuario")
