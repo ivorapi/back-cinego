@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +48,7 @@ public class SalaController {
 
     // crear sala
     // post localhost:8080/api/salas
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PostMapping
     public ResponseEntity<Salas> createSala(@RequestBody Salas sala) {
         if (sala.getNombre() == null || sala.getNombre().isEmpty()) {
@@ -57,6 +59,7 @@ public class SalaController {
 
     // actualizar sala por id
     // put localhost:8080/api/salas/1
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PutMapping("/{id}")
     public Salas updateSala(@PathVariable Long id, @RequestBody Salas sala) {
         Salas existente = salaService.findById(id);
@@ -69,6 +72,7 @@ public class SalaController {
 
     // borrar sala por id
     // delete localhost:8080/api/salas/1
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteSala(@PathVariable Long id) {
         salaService.deleteById(id);
@@ -76,6 +80,7 @@ public class SalaController {
 
     // eliminar todas las salas
     // delete localhost:8080/api/salas
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping
     public void deleteAllSalas() {
         salaService.deleteAll();

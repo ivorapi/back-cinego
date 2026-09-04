@@ -7,6 +7,7 @@ import com.uade.demo.service.FuncionServices;
 import com.uade.demo.model.Funcion;
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +40,7 @@ public class FuncionController {
 
     // crear funcion
     // post localhost:8080/api/funciones
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PostMapping
     public Funcion createFuncion(@RequestBody Funcion funcion) {
         return funcionServices.saveFuncion(funcion);
@@ -46,6 +48,7 @@ public class FuncionController {
 
     // actualizar funcion por id
     // put localhost:8080/api/funciones/1
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PutMapping("/{id}")
     public Funcion updateFuncion(@PathVariable Long id, @RequestBody Funcion funcion) {
         funcion.setId(id);
@@ -54,6 +57,7 @@ public class FuncionController {
 
     // eliminar funcion por id
     // delete localhost:8080/api/funciones/1
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteFuncion(@PathVariable Long id) {
         funcionServices.deleteFuncion(id);
@@ -61,6 +65,7 @@ public class FuncionController {
 
     // eliminar todas las funciones
     // delete localhost:8080/api/funciones
+    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping
     public void deleteAllFunciones() {
         funcionServices.deleteAllFunciones();
