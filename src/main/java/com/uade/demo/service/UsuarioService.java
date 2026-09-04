@@ -2,13 +2,15 @@ package com.uade.demo.service;
 
 import java.util.List;
 
+import com.uade.demo.dto.CrearAdminRequestDTO;
+import com.uade.demo.model.Rol;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.uade.demo.dto.LoginRequestDTO;
+import com.uade.demo.dto.RegistroRequestDTO;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.repository.UsuarioRepository;
-import com.uade.dto.LoginRequestDTO;
-import com.uade.dto.RegistroRequestDTO;
 
 import jakarta.transaction.Transactional;
 
@@ -18,10 +20,13 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public List<Usuarios> findAll() {
@@ -60,7 +65,7 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public Usuarios login(LoginRequestDTO request) {
+    public String login(LoginRequestDTO request) {
         Usuarios usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
 
@@ -68,7 +73,22 @@ public class UsuarioService {
             throw new RuntimeException("Credenciales inválidas");
         }
 
-        return usuario;
+        return jwtService.generarToken(usuario.getEmail(), usuario.getRol());
     }
-    
+
+    public Usuarios crearAdmin(CrearAdminRequestDTO request) {
+        if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Ya existe un usuario registrado con ese email");
+        }
+
+        Usuarios admin = new Usuarios();
+        admin.setEmail(request.getEmail());
+        admin.setNombre(request.getNombre());
+        admin.setApellido(request.getApellido());
+        admin.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        admin.setRol(Rol.ADMIN);
+
+        return usuarioRepository.save(admin);
+    }
+
 }

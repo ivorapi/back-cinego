@@ -1,18 +1,20 @@
 package com.uade.demo.controller;
 
+import com.uade.demo.dto.CrearAdminRequestDTO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.demo.dto.LoginRequestDTO;
+import com.uade.demo.dto.RegistroRequestDTO;
 import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.service.UsuarioService;
-import com.uade.dto.LoginRequestDTO;
-import com.uade.dto.RegistroRequestDTO;
 
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +52,7 @@ public class UsuarioController {
 
     //crear usuario
     // post localhost:8080/api/usuarios
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping
     public ResponseEntity<Usuarios> createUsuario(@RequestBody Usuarios usuario) {
 
@@ -62,6 +65,7 @@ public class UsuarioController {
 
     //actualizar usuario por id
     // put localhost:8080/api/usuarios/1
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{id}")
     public Usuarios updateUsuario(@PathVariable Long id, @RequestBody Usuarios usuario) {
         Usuarios existingUsuario = usuarioService.findById(id);
@@ -82,6 +86,7 @@ public class UsuarioController {
 
     //borrar usuario por id
     // delete localhost:8080/api/usuarios/1
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteUsuario(@PathVariable Long id) {
         usuarioService.deleteById(id);
@@ -89,6 +94,7 @@ public class UsuarioController {
 
     //elminiar a todos los usuarios
     // delete localhost:8080/api/usuarios
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping
     public void deleteAllUsuarios() {
         usuarioService.deleteAll();
@@ -105,9 +111,18 @@ public class UsuarioController {
     //login de usuario
     // post localhost:8080/api/usuarios/login
     @PostMapping("/login")
-    public ResponseEntity<Usuarios> loginUsuario(@RequestBody LoginRequestDTO request) {
-        Usuarios usuario = usuarioService.login(request);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<String> loginUsuario(@RequestBody LoginRequestDTO request) {
+        String token = usuarioService.login(request);
+        return ResponseEntity.ok(token);
+    }
+
+    // crear un usuario admin
+    // post localhost:8080/api/usuarios/crearAdmin
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping("/crear-admin")
+    public ResponseEntity<Usuarios> crearAdmin(@RequestBody CrearAdminRequestDTO request) {
+        Usuarios adminCreado = usuarioService.crearAdmin(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminCreado);
     }
 
 }
