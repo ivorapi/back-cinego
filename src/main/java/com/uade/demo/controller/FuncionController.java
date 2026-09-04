@@ -2,7 +2,7 @@ package com.uade.demo.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.uade.demo.service.FuncionServices;
+import com.uade.demo.service.FuncionService;
 
 import com.uade.demo.model.Funcion;
 import java.util.List;
@@ -18,30 +18,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/api/funciones")
 public class FuncionController {
-    private final FuncionServices funcionServices; 
+    private final FuncionService funcionService;
 
-    public FuncionController(FuncionServices funcionServices) {
-        this.funcionServices = funcionServices;
+    public FuncionController(FuncionService funcionService) {
+        this.funcionService = funcionService;
     }
     // devolver a todas las funciones
     // get localhost:8080/api/funciones
     @GetMapping
     public List<Funcion> getAllFunciones() {
-        return funcionServices.getAllFunciones();
+        return funcionService.getAllFunciones();
     }
 
     // devolver funcion por id
     // get localhost:8080/api/funciones/1
     @GetMapping("/{id}")
     public Funcion getFuncionById(@PathVariable Long id) {
-        return funcionServices.getFuncionById(id);
+        return funcionService.getFuncionById(id);
     }
 
     // crear funcion
     // post localhost:8080/api/funciones
     @PostMapping
     public Funcion createFuncion(@RequestBody Funcion funcion) {
-        return funcionServices.saveFuncion(funcion);
+        return funcionService.saveFuncion(funcion);
     }
 
     // actualizar funcion por id
@@ -49,20 +49,20 @@ public class FuncionController {
     @PutMapping("/{id}")
     public Funcion updateFuncion(@PathVariable Long id, @RequestBody Funcion funcion) {
         funcion.setId(id);
-        return funcionServices.saveFuncion(funcion);
+        return funcionService.saveFuncion(funcion);
     }
 
     // eliminar funcion por id
     // delete localhost:8080/api/funciones/1
     @DeleteMapping("/{id}")
     public void deleteFuncion(@PathVariable Long id) {
-        funcionServices.deleteFuncion(id);
+        funcionService.deleteFuncion(id);
     }
 
     // eliminar todas las funciones
     // delete localhost:8080/api/funciones
     @DeleteMapping
     public void deleteAllFunciones() {
-        funcionServices.deleteAllFunciones();
+        funcionService.deleteAllFunciones();
     }
 }

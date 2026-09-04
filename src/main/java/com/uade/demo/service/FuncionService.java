@@ -1,17 +1,22 @@
 package com.uade.demo.service;
 
+import com.uade.demo.repository.AsientoRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
+
+import com.uade.demo.model.Asiento;
 import com.uade.demo.model.Funcion;
 import com.uade.demo.repository.FuncionRepository;
 
 
 @Service
-public class FuncionServices {
+public class FuncionService {
+    private final AsientoRepository asientoRepository;
     private final FuncionRepository funcionRepository;
 
-    public FuncionServices(FuncionRepository funcionRepository) {
+    public FuncionService(FuncionRepository funcionRepository, AsientoRepository asientoRepository) {
         this.funcionRepository = funcionRepository;
+        this.asientoRepository = asientoRepository;
     }
     public List<Funcion> getAllFunciones() {
         return funcionRepository.findAll();
@@ -31,5 +36,8 @@ public class FuncionServices {
 
     public void deleteAllFunciones() {
         funcionRepository.deleteAll();
+    }
+    public List<Asiento> getAllAsientos(Long id) {
+        return asientoRepository.findBySalaId(id);
     }
 }
