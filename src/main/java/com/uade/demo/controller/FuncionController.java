@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.demo.dto.funcion.FuncionRequestDTO;
 import com.uade.demo.dto.funcion.FuncionResponseDTO;
-import com.uade.demo.service.FuncionServices;
+import com.uade.demo.service.FuncionService;
 
 @RestController
 @RequestMapping("/api/funciones")
 public class FuncionController {
-    private final FuncionServices funcionServices;
+    private final FuncionService funcionServices;
 
-    public FuncionController(FuncionServices funcionServices) {
+    public FuncionController(FuncionService funcionServices) {
         this.funcionServices = funcionServices;
     }
 

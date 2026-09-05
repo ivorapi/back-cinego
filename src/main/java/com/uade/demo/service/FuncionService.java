@@ -15,12 +15,12 @@ import com.uade.demo.repository.PeliculaRepository;
 import com.uade.demo.repository.SalaRepository;
 
 @Service
-public class FuncionServices {
+public class FuncionService {
     private final FuncionRepository funcionRepository;
     private final PeliculaRepository peliculaRepository;
     private final SalaRepository salaRepository;
 
-    public FuncionServices(FuncionRepository funcionRepository, PeliculaRepository peliculaRepository,
+    public FuncionService(FuncionRepository funcionRepository, PeliculaRepository peliculaRepository,
             SalaRepository salaRepository) {
         this.funcionRepository = funcionRepository;
         this.peliculaRepository = peliculaRepository;
