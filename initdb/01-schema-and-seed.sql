@@ -1,6 +1,7 @@
 CREATE TABLE usuarios (
   id BIGINT NOT NULL AUTO_INCREMENT, email VARCHAR(100) NOT NULL, nombre VARCHAR(100) NOT NULL,
   apellido VARCHAR(100) NOT NULL, password_hash VARCHAR(255) NOT NULL, fecha_nacimiento DATE, sexo VARCHAR(20),
+  rol ENUM('ADMIN','CLIENTE','SUPER_ADMIN') NOT NULL,
   PRIMARY KEY (id), UNIQUE KEY uk_usuarios_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -53,9 +54,10 @@ CREATE TABLE descuento_pelicula (
   CONSTRAINT fk_descuento_pelicula_pelicula FOREIGN KEY (pelicula_id) REFERENCES peliculas(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO usuarios (id,email,nombre,apellido,password_hash,fecha_nacimiento,sexo) VALUES
-  (1,'ana.garcia@cinego.test','Ana','Garcia','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','1998-04-15','F'),
-  (2,'bruno.lopez@cinego.test','Bruno','Lopez','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','1995-09-02','M');
+INSERT INTO usuarios (id,email,nombre,apellido,password_hash,fecha_nacimiento,sexo,rol) VALUES
+  (1,'ana.garcia@cinego.test','Ana','Garcia','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','1998-04-15','F','ADMIN'),
+  (2,'bruno.lopez@cinego.test','Bruno','Lopez','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','1995-09-02','M','ADMIN'),
+  (4,'superadmin@cinego.com','Super','Admin','$2y$10$ECkvd9P5..F9ILIiEJTIYeCBpdSrn2od3TdeFc5gy.Won6u6szVeW',NULL,NULL,'SUPER_ADMIN');
 INSERT INTO salas (id,nombre) VALUES (1,'Sala A'),(2,'Sala Premium');
 INSERT INTO peliculas (id,titulo,duracion,clasificacion,sinopsis,poster_url) VALUES
   (1,'El viaje de Luna',112,8.2,'Una aventura espacial para toda la familia.','https://example.test/posters/luna.jpg'),
