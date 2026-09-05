@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +52,7 @@ public class UsuarioController {
 
     //crear usuario
     // post localhost:8080/api/usuarios
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping
     public ResponseEntity<Usuarios> createUsuario(@RequestBody Usuarios usuario) {
 
@@ -63,6 +65,7 @@ public class UsuarioController {
 
     //actualizar usuario por id
     // put localhost:8080/api/usuarios/1
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping("/{id}")
     public Usuarios updateUsuario(@PathVariable Long id, @RequestBody Usuarios usuario) {
         Usuarios existingUsuario = usuarioService.findById(id);
@@ -83,6 +86,7 @@ public class UsuarioController {
 
     //borrar usuario por id
     // delete localhost:8080/api/usuarios/1
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteUsuario(@PathVariable Long id) {
         usuarioService.deleteById(id);
@@ -90,6 +94,7 @@ public class UsuarioController {
 
     //elminiar a todos los usuarios
     // delete localhost:8080/api/usuarios
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping
     public void deleteAllUsuarios() {
         usuarioService.deleteAll();
@@ -111,8 +116,9 @@ public class UsuarioController {
         return ResponseEntity.ok(token);
     }
 
-    // crear un usuario admin (sin autenticacion todavia, pendiente proteger con SUPER_ADMIN)
+    // crear un usuario admin
     // post localhost:8080/api/usuarios/crearAdmin
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/crear-admin")
     public ResponseEntity<Usuarios> crearAdmin(@RequestBody CrearAdminRequestDTO request) {
         Usuarios adminCreado = usuarioService.crearAdmin(request);

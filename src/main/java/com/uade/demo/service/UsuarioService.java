@@ -61,6 +61,7 @@ public class UsuarioService {
         usuario.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         usuario.setFechaNacimiento(request.getFechaNacimiento());
         usuario.setSexo(request.getSexo());
+        usuario.setRol(Rol.CLIENTE);
 
         return usuarioRepository.save(usuario);
     }
