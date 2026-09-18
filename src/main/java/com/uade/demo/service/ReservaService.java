@@ -65,7 +65,8 @@ public class ReservaService {
         
         List<Long> asientoIds = reservaRequest.getAsientoId();
         List<Asiento> asientos = obtenerAsientosPorIds(asientoIds, funcion.getSala().getId());
-
+        validarDisponibilidad(funcion, asientos);
+        
         Reserva reservaGuardada = reservaRepository.save(reserva);
         
         List<Entrada> entradas = asientos.stream()
@@ -139,6 +140,19 @@ private List<Asiento> obtenerAsientosPorIds(List<Long> asientoIds, Long salaFunc
 
 
     return asientos;
+}
+
+private void validarDisponibilidad(Funcion funcion, List<Asiento> asientos) {
+    boolean hayAsientoOcupado = asientos.stream()
+            .anyMatch(asiento -> entradaRepository.existeEntradaActiva(
+                    funcion.getId(),
+                    asiento.getId(),
+                    EstadoReserva.CANCELADA));
+
+    if (hayAsientoOcupado) {
+        throw new AsientoOcupadoException(
+                "Uno o más asientos ya están reservados para esta función");
+    }
 }
 
 private Entrada crearEntrada(

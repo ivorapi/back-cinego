@@ -43,4 +43,9 @@ public class GlobalExceptionHandler {
     // public ResponseEntity<String> manejarErroresGenerales(Exception ex) {
     //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno: " + ex.getMessage());
     // }
+
+    @ExceptionHandler(AsientoOcupadoException.class)
+    public ResponseEntity<String> manejarAsientoOcupado(AsientoOcupadoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
 }
