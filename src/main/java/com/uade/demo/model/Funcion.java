@@ -38,7 +38,7 @@ public class Funcion {
 
     @JsonIgnore
     @OneToMany(mappedBy = "funcion")
-    private List<Reservas> reservas = new ArrayList<>();
+    private List<Reserva> reservas = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "funcion")
