@@ -3,6 +3,7 @@ package com.uade.demo.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.demo.dto.funcion.FuncionRequestDTO;
 import com.uade.demo.dto.funcion.FuncionResponseDTO;
@@ -15,6 +16,7 @@ import com.uade.demo.repository.PeliculaRepository;
 import com.uade.demo.repository.SalaRepository;
 
 @Service
+@Transactional
 public class FuncionService {
     private final FuncionRepository funcionRepository;
     private final PeliculaRepository peliculaRepository;
