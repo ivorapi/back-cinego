@@ -1,13 +1,19 @@
 package com.uade.demo.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 //TODO: ssanchez - es buena práctica crear excepciones personalizadas para cada categoría error, y manejarlas en un controlador de excepciones global con @ControllerAdvice, para centralizar el manejo de errores y evitar repetir código en cada controlador. Por ejemplo, se podría crear una excepción ProductoNotFoundException para manejar el caso cuando no se encuentra un producto, y otra excepción PrecioNegativoException para manejar el caso cuando se intenta guardar un producto con precio negativo. Luego, en el controlador de excepciones global, se podrían manejar estas excepciones y devolver una respuesta adecuada al cliente, como un código de estado HTTP 404 (Not Found) para ProductoNotFoundException, o un código de estado HTTP 400 (Bad Request) para PrecioNegativoException.
 // Anotación que indica que esta clase manejará excepciones de forma global para todos los controladores.
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Anotación que indica que este método manejará las excepciones de tipo ResourceNotFoundException.
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -32,6 +38,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> manejarCredencialesInvalidas(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> manejarValidacion(MethodArgumentNotValidException ex) {
+        String mensaje = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElse("Los datos enviados no son válidos");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensaje);
+    }
+
     // Anotación que indica que este método manejará las excepciones de tipo AccessDeniedException.
     @ExceptionHandler(AccessDeniedException.class)
     // Este método se ejecuta cuando @PreAuthorize rechaza el acceso por falta de rol.
@@ -39,8 +59,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tenés permisos para realizar esta acción");
     }
 
-    // @ExceptionHandler(Exception.class)
-    // public ResponseEntity<String> manejarErroresGenerales(Exception ex) {
-    //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno: " + ex.getMessage());
-    // }
+    @ExceptionHandler(AsientoOcupadoException.class)
+    public ResponseEntity<String> manejarAsientoOcupado(AsientoOcupadoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> manejarErroresGenerales(Exception ex) {
+        LOGGER.error("Error interno no controlado", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Ocurrió un error interno");
+    }
 }
