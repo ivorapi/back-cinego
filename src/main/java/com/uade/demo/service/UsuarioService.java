@@ -5,6 +5,7 @@ import java.util.List;
 import com.uade.demo.dto.CrearAdminRequestDTO;
 import com.uade.demo.model.Rol;
 import org.springframework.stereotype.Service;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.uade.demo.dto.LoginRequestDTO;
@@ -68,10 +69,10 @@ public class UsuarioService {
 
     public String login(LoginRequestDTO request) {
         Usuarios usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
+                .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
 
         if (!passwordEncoder.matches(request.getPassword(), usuario.getPasswordHash())) {
-            throw new RuntimeException("Credenciales inválidas");
+            throw new BadCredentialsException("Credenciales inválidas");
         }
 
         return jwtService.generarToken(usuario.getEmail(), usuario.getRol());

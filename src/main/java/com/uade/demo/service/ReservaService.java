@@ -58,7 +58,7 @@ public class ReservaService {
     @Transactional(readOnly = true)
     public List<ReservaResponseDTO> getMisReservas() {
         Usuarios usuario = obtenerUsuarioAutenticado();
-        return reservaRepository.findByUsuarioId(usuario.getId()).stream()
+        return reservaRepository.findByUsuario_Id(usuario.getId()).stream()
                 .map(this::toResponseDTO)
                 .toList();
     }
@@ -204,7 +204,7 @@ private ReservaResponseDTO toResponseDTO(Reserva reserva) {
     respuesta.setEstado(reserva.getEstado());
     respuesta.setFechaReserva(reserva.getCreadaEn());
     respuesta.setTotal(reserva.getTotal());
-    respuesta.setIdsEntradas(entradaRepository.findByReservaId(reserva.getId()).stream()
+    respuesta.setIdsEntradas(entradaRepository.findByReserva_Id(reserva.getId()).stream()
             .map(Entrada::getId)
             .toList());
     return respuesta;

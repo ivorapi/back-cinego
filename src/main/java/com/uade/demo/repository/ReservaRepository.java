@@ -7,5 +7,5 @@ import com.uade.demo.model.Reserva;
 
 @Repository 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-    List<Reserva> findByUsuarioId(Long usuarioId);
+    List<Reserva> findByUsuario_Id(Long usuarioId);
 }

@@ -13,8 +13,8 @@ import com.uade.demo.model.EstadoReserva;
 
 @Repository
 public interface EntradaRepository extends JpaRepository<Entrada, Long> {
-    List<Entrada> findByReservaId(Long reservaId);
-    List<Entrada> findByFuncionId(Long funcionId);
+    List<Entrada> findByReserva_Id(Long reservaId);
+    List<Entrada> findByFuncion_Id(Long funcionId);
     Optional<Entrada> findByCodigo(String codigo);
 
     @Query("""

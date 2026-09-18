@@ -1,7 +1,10 @@
 package com.uade.demo.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 // Anotación que indica que esta clase manejará excepciones de forma global para todos los controladores.
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Anotación que indica que este método manejará las excepciones de tipo ResourceNotFoundException.
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -33,6 +38,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> manejarCredencialesInvalidas(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> manejarValidacion(MethodArgumentNotValidException ex) {
         String mensaje = ex.getBindingResult().getFieldErrors().stream()
@@ -49,13 +59,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tenés permisos para realizar esta acción");
     }
 
-    // @ExceptionHandler(Exception.class)
-    // public ResponseEntity<String> manejarErroresGenerales(Exception ex) {
-    //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno: " + ex.getMessage());
-    // }
-
     @ExceptionHandler(AsientoOcupadoException.class)
     public ResponseEntity<String> manejarAsientoOcupado(AsientoOcupadoException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> manejarErroresGenerales(Exception ex) {
+        LOGGER.error("Error interno no controlado", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Ocurrió un error interno");
     }
 }

@@ -9,5 +9,5 @@ import com.uade.demo.model.Asiento;
 
 @Repository
 public interface AsientoRepository extends JpaRepository<Asiento, Long> {
-    List<Asiento> findBySalaId(Long salaId);
+    List<Asiento> findBySala_Id(Long salaId);
 }
