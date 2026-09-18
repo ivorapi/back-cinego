@@ -4,23 +4,27 @@ import com.uade.demo.repository.EntradaRepository;
 import com.uade.demo.repository.UsuarioRepository;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.demo.dto.ReservaRequestDTO;
 import com.uade.demo.dto.ReservaResponseDTO;
+import com.uade.demo.exception.AsientoOcupadoException;
 import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Asiento;
 import com.uade.demo.model.Entrada;
 import com.uade.demo.model.EstadoReserva;
 import com.uade.demo.model.Funcion;
 import com.uade.demo.model.Reserva;
+import com.uade.demo.model.Rol;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.repository.AsientoRepository;
 import com.uade.demo.repository.FuncionRepository;
@@ -30,7 +34,7 @@ import com.uade.demo.repository.ReservaRepository;
 public class ReservaService {
     private final EntradaRepository entradaRepository;
     private final UsuarioRepository usuarioRepository;
-    private ReservaRepository reservaRepository;
+    private final ReservaRepository reservaRepository;
     private final FuncionRepository funcionRepository;
     private final AsientoRepository asientoRepository;
 
@@ -44,13 +48,19 @@ public class ReservaService {
 
     }
 
-    public Optional<Reserva> getReservaByid(Long id) { 
-           return reservaRepository.findById(id);
+    @Transactional(readOnly = true)
+    public ReservaResponseDTO getReservaById(Long id) {
+        Reserva reserva = buscarReserva(id);
+        validarAccesoAReserva(reserva);
+        return toResponseDTO(reserva);
     }
 
-    public List<Reserva> getReservasDelUsuarioAutenticado() {
+    @Transactional(readOnly = true)
+    public List<ReservaResponseDTO> getMisReservas() {
         Usuarios usuario = obtenerUsuarioAutenticado();
-        return reservaRepository.findByUsuarioId(usuario.getId());
+        return reservaRepository.findByUsuarioId(usuario.getId()).stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Transactional 
@@ -63,7 +73,8 @@ public class ReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada con id: " + reservaRequest.getFuncionId()));
         reserva.setFuncion(funcion);
         
-        List<Long> asientoIds = reservaRequest.getAsientoId();
+        List<Long> asientoIds = reservaRequest.getAsientoIds();
+        validarIdsDeAsientosSinRepetidos(asientoIds);
         List<Asiento> asientos = obtenerAsientosPorIds(asientoIds, funcion.getSala().getId());
         validarDisponibilidad(funcion, asientos);
         
@@ -83,27 +94,21 @@ public class ReservaService {
 
             reservaGuardada.setTotal(total);
 
-            ReservaResponseDTO respuesta = new ReservaResponseDTO();
-            respuesta.setReserva(reservaGuardada.getId());
-            respuesta.setFuncion(funcion.getId());
-            respuesta.setEstado(reservaGuardada.getEstado());
-            respuesta.setFechaReserva(reservaGuardada.getCreadaEn());
-            respuesta.setEntradas(entradas.stream().map(Entrada::getId).toList());
-            respuesta.setTotal(total);
-
-            return respuesta;
+        return toResponseDTO(reservaGuardada);
 
     }
 
-    public void deleteReserva(Long id) {
-        reservaRepository.deleteById(id);
-    }
+    @Transactional
+    public ReservaResponseDTO cancelarReserva(Long id) {
+        Reserva reserva = buscarReserva(id);
+        validarAccesoAReserva(reserva);
 
-    public Reserva cancelarReserva(Long id) {
-        Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada con id: " + id));
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            throw new IllegalArgumentException("La reserva ya está cancelada");
+        }
+
         reserva.setEstado(EstadoReserva.CANCELADA);
-        return reservaRepository.save(reserva);
+        return toResponseDTO(reserva);
     }
     
     private Usuarios obtenerUsuarioAutenticado() {
@@ -142,6 +147,13 @@ private List<Asiento> obtenerAsientosPorIds(List<Long> asientoIds, Long salaFunc
     return asientos;
 }
 
+private void validarIdsDeAsientosSinRepetidos(List<Long> asientoIds) {
+    Set<Long> idsUnicos = new HashSet<>(asientoIds);
+    if (idsUnicos.size() != asientoIds.size()) {
+        throw new IllegalArgumentException("No podés repetir asientos en una misma reserva");
+    }
+}
+
 private void validarDisponibilidad(Funcion funcion, List<Asiento> asientos) {
     boolean hayAsientoOcupado = asientos.stream()
             .anyMatch(asiento -> entradaRepository.existeEntradaActiva(
@@ -168,5 +180,33 @@ private Entrada crearEntrada(
     entrada.setCodigo("CNG-" + UUID.randomUUID());
 
     return entrada;
+}
+
+private Reserva buscarReserva(Long id) {
+    return reservaRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada con id: " + id));
+}
+
+private void validarAccesoAReserva(Reserva reserva) {
+    Usuarios usuario = obtenerUsuarioAutenticado();
+    boolean esPropietario = reserva.getUsuarioId().equals(usuario.getId());
+    boolean esAdministrador = usuario.getRol() == Rol.ADMIN || usuario.getRol() == Rol.SUPER_ADMIN;
+
+    if (!esPropietario && !esAdministrador) {
+        throw new AccessDeniedException("No tenés permisos para acceder a esta reserva");
+    }
+}
+
+private ReservaResponseDTO toResponseDTO(Reserva reserva) {
+    ReservaResponseDTO respuesta = new ReservaResponseDTO();
+    respuesta.setIdReserva(reserva.getId());
+    respuesta.setIdFuncion(reserva.getFuncionId());
+    respuesta.setEstado(reserva.getEstado());
+    respuesta.setFechaReserva(reserva.getCreadaEn());
+    respuesta.setTotal(reserva.getTotal());
+    respuesta.setIdsEntradas(entradaRepository.findByReservaId(reserva.getId()).stream()
+            .map(Entrada::getId)
+            .toList());
+    return respuesta;
 }
 }
