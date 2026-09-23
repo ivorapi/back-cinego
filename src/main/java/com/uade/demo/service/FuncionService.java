@@ -14,7 +14,10 @@ import com.uade.demo.repository.FuncionRepository;
 import com.uade.demo.repository.PeliculaRepository;
 import com.uade.demo.repository.SalaRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional 
 public class FuncionService {
     private final FuncionRepository funcionRepository;
     private final PeliculaRepository peliculaRepository;

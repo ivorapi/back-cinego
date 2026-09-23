@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.demo.service.ReservaService;
 import com.uade.demo.model.Reservas;
+import com.uade.demo.dto.ReservaRequestDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -30,11 +31,9 @@ public class ReservaController {
                 .orElseThrow(() -> new RuntimeException("Reserva not found with id: " + id));
     }
 
-    @PostMapping("/")
-    public String createReserva(@RequestBody String entity) {
-        reservaServices.createReserva(1L, 1L, List.of(1L));
-        
-        return entity;
+    @PostMapping
+    public Reservas createReserva(@RequestBody ReservaRequestDTO request) {
+        return reservaServices.createReserva(request.getUsuarioId(), request.getFuncionId());
     }
     
 
