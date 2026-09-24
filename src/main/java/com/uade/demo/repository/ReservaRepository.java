@@ -1,6 +1,11 @@
 package com.uade.demo.repository;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.uade.demo.model.Reservas;
+import org.springframework.stereotype.Repository;
 
-public interface ReservaRepository extends JpaRepository<Reservas, Long> {
+import com.uade.demo.model.Reserva;
+
+@Repository 
+public interface ReservaRepository extends JpaRepository<Reserva, Long> {
+    List<Reserva> findByUsuario_Id(Long usuarioId);
 }

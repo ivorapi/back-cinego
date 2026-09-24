@@ -12,6 +12,9 @@ import com.uade.demo.service.UsuarioService;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/usuarios")
+@Tag(name = "Usuarios", description = "Autenticación y administración de usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -103,6 +107,8 @@ public class UsuarioController {
     //registrar usuario nuevo
     // post localhost:8080/api/usuarios/registro
     @PostMapping("/registro")
+    @Operation(summary = "Registrar un cliente", description = "Endpoint público para crear una cuenta con rol CLIENTE.")
+    @SecurityRequirements
     public ResponseEntity<Usuarios> registrarUsuario(@RequestBody RegistroRequestDTO request) {
         Usuarios usuarioCreado = usuarioService.registrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCreado);
@@ -111,6 +117,8 @@ public class UsuarioController {
     //login de usuario
     // post localhost:8080/api/usuarios/login
     @PostMapping("/login")
+    @Operation(summary = "Iniciar sesión", description = "Endpoint público. Devuelve un JWT para usar como Bearer token.")
+    @SecurityRequirements
     public ResponseEntity<String> loginUsuario(@RequestBody LoginRequestDTO request) {
         String token = usuarioService.login(request);
         return ResponseEntity.ok(token);

@@ -19,7 +19,7 @@ public class Entrada {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "reserva_id", nullable = false)
-    private Reservas reserva;
+    private Reserva reserva;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "asiento_id", nullable = false)

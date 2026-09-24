@@ -20,8 +20,8 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("CineGo API")
-                        .version("v1")
-                        .description("API for managing movies, screenings, reservations and users."))
+                        .version("1.0.0")
+                        .description("API REST para gestionar películas, salas, funciones, descuentos, usuarios y reservas de CineGo. Los endpoints protegidos requieren un JWT obtenido mediante /api/usuarios/login."))
                 .components(new Components().addSecuritySchemes(BEARER_AUTH,
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)
