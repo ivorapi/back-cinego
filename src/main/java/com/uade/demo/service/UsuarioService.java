@@ -4,8 +4,9 @@ import java.util.List;
 
 import com.uade.demo.dto.CrearAdminRequestDTO;
 import com.uade.demo.model.Rol;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.uade.demo.dto.LoginRequestDTO;
@@ -22,12 +23,13 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
-
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     public List<Usuarios> findAll() {
@@ -68,12 +70,10 @@ public class UsuarioService {
     }
 
     public String login(LoginRequestDTO request) {
-        Usuarios usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getPasswordHash())) {
-            throw new BadCredentialsException("Credenciales inválidas");
-        }
+        Usuarios usuario = usuarioRepository.findByEmail(request.getEmail()).orElseThrow();
 
         return jwtService.generarToken(usuario.getEmail(), usuario.getRol());
     }
