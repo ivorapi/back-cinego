@@ -54,7 +54,7 @@ public class UsuarioService {
 
     public Usuarios registrar(RegistroRequestDTO request) {
         if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Ya existe un usuario registrado con ese email");
+            throw new IllegalArgumentException("Ya existe un usuario registrado con ese email");
         }
 
         Usuarios usuario = new Usuarios();
@@ -80,7 +80,7 @@ public class UsuarioService {
 
     public Usuarios crearAdmin(CrearAdminRequestDTO request) {
         if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Ya existe un usuario registrado con ese email");
+            throw new IllegalArgumentException("Ya existe un usuario registrado con ese email");
         }
 
         Usuarios admin = new Usuarios();
