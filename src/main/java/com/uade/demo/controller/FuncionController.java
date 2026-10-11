@@ -67,7 +67,7 @@ public class FuncionController {
     // eliminar todas las funciones
     // delete localhost:8080/api/funciones
     @DeleteMapping
-git sta    public void deleteAllFunciones() {
+    public void deleteAllFunciones() {
         funcionServices.deleteAllFunciones();
     }
 }
