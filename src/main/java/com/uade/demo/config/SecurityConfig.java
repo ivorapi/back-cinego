@@ -5,6 +5,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -89,6 +90,17 @@ public class SecurityConfig {
                         .hasRole(Rol.SUPER_ADMIN.name())
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/usuarios/**")
                         .hasRole(Rol.SUPER_ADMIN.name())
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/peliculas/**", "/api/salas/**", "/api/funciones/**", "/api/descuentos/**")
+                        .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/peliculas/**", "/api/salas/**", "/api/funciones/**")
+                        .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/peliculas/**", "/api/salas/**", "/api/funciones/**", "/api/descuentos/**")
+                        .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
+                        .requestMatchers(HttpMethod.PATCH, "/api/descuentos/**")
+                        .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

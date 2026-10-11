@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -30,7 +29,6 @@ public class DescuentoController {
         this.descuentoService = descuentoService;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PostMapping
     public ResponseEntity<DescuentoResponseDTO> crear(@RequestBody DescuentoRequestDTO body) {
         DescuentoResponseDTO creado = descuentoService.toResponseDTO(descuentoService.crear(body));
@@ -42,13 +40,11 @@ public class DescuentoController {
         return descuentoService.listar();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Long id) {
         descuentoService.eliminar(id);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PatchMapping("/{id}/estado")
     public ResponseEntity<DescuentoResponseDTO> cambiarEstado(@PathVariable Long id,
             @RequestBody CambiarEstadoRequestDTO body) {
@@ -57,7 +53,6 @@ public class DescuentoController {
         return ResponseEntity.ok(actualizado);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
     @PatchMapping("/{id}/peliculas")
     public ResponseEntity<DescuentoResponseDTO> asociarPeliculas(@PathVariable Long id,
             @RequestBody AsociarPeliculasRequestDTO body) {
