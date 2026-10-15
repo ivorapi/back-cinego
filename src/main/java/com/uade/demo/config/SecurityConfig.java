@@ -27,11 +27,9 @@ import com.uade.demo.repository.UsuarioRepository;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UsuarioRepository usuarioRepository;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UsuarioRepository usuarioRepository) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    public SecurityConfig(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -59,17 +57,16 @@ public class SecurityConfig {
         config.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(
-                List.of("Authorization", "Content-Type", "Accept"));
+                List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**", config);
-
         return source;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -83,12 +80,18 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**")
                         .permitAll()
+                        // Lectura pública: lo que el front muestra sin iniciar sesión
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/peliculas/**",
+                                "/api/funciones/**",
+                                "/api/salas/**")
+                        .permitAll()
                         .requestMatchers("/api/usuarios/crear-admin").hasRole(Rol.SUPER_ADMIN.name())
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/usuarios")
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios")
                         .hasRole(Rol.SUPER_ADMIN.name())
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/usuarios/**")
+                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/**")
                         .hasRole(Rol.SUPER_ADMIN.name())
-                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/usuarios/**")
+                        .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**")
                         .hasRole(Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.POST,
                                 "/api/peliculas/**", "/api/salas/**", "/api/funciones/**", "/api/descuentos/**")
