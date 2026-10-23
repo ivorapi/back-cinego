@@ -1,4 +1,21 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cinego-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/cinego?serverTimezone=UTC
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-cinego_dev_password}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-env-please-use-a-secret-of-at-least-32-chars}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
   mysql:
     image: mysql:8.4
     container_name: cinego-mysql

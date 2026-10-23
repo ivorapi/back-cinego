@@ -1,6 +1,13 @@
 package com.uade.demo.service;
 
 import java.util.List;
+import java.util.Comparator;
+import java.util.HashSet;
+import com.uade.demo.dto.AsientoResponseDTO;
+import com.uade.demo.model.Asiento;
+import com.uade.demo.model.EstadoReserva;
+import com.uade.demo.repository.AsientoRepository;
+import com.uade.demo.repository.EntradaRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +28,26 @@ public class FuncionService {
     private final FuncionRepository funcionRepository;
     private final PeliculaRepository peliculaRepository;
     private final SalaRepository salaRepository;
+    private final AsientoRepository asientoRepository;
+    private final EntradaRepository entradaRepository;
 
     public FuncionService(FuncionRepository funcionRepository, PeliculaRepository peliculaRepository,
-            SalaRepository salaRepository) {
+            SalaRepository salaRepository, AsientoRepository asientoRepository, EntradaRepository entradaRepository) {
         this.funcionRepository = funcionRepository;
         this.peliculaRepository = peliculaRepository;
         this.salaRepository = salaRepository;
+        this.asientoRepository = asientoRepository;
+        this.entradaRepository = entradaRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AsientoResponseDTO> getAsientos(Long id) {
+        Funcion funcion = buscarPorId(id);
+        var ocupados = new HashSet<>(entradaRepository.findAsientoIdsOcupados(id, EstadoReserva.CANCELADA));
+        return asientoRepository.findBySala_Id(funcion.getSalaId()).stream()
+                .sorted(Comparator.comparing(Asiento::getFila).thenComparingInt(Asiento::getNumero))
+                .map(a -> new AsientoResponseDTO(a.getId(), a.getFila(), a.getNumero(), ocupados.contains(a.getId())))
+                .toList();
     }
 
     public List<FuncionResponseDTO> getAllFunciones() {

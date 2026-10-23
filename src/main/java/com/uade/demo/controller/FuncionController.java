@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.demo.dto.funcion.FuncionRequestDTO;
 import com.uade.demo.dto.funcion.FuncionResponseDTO;
 import com.uade.demo.service.FuncionService;
+import com.uade.demo.dto.AsientoResponseDTO;
 
 @RestController
 @RequestMapping("/api/funciones")
@@ -38,6 +39,11 @@ public class FuncionController {
     @GetMapping("/{id}")
     public ResponseEntity<FuncionResponseDTO> getFuncionById(@PathVariable Long id) {
         return ResponseEntity.ok(funcionServices.getFuncionById(id));
+    }
+
+    @GetMapping("/{id}/asientos")
+    public List<AsientoResponseDTO> getAsientos(@PathVariable Long id) {
+        return funcionServices.getAsientos(id);
     }
 
     // crear funcion
