@@ -14,6 +14,11 @@ CREATE TABLE peliculas (
   clasificacion DOUBLE NOT NULL, sinopsis TEXT, poster_url VARCHAR(255), PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE candy (
+  id BIGINT NOT NULL AUTO_INCREMENT, nombre VARCHAR(100) NOT NULL, descripcion TEXT,
+  precio DECIMAL(10,2) NOT NULL, imagen_url VARCHAR(255), PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE asientos (
   id BIGINT NOT NULL AUTO_INCREMENT, sala_id BIGINT NOT NULL, fila VARCHAR(10) NOT NULL, numero INT NOT NULL,
   PRIMARY KEY (id), CONSTRAINT fk_asiento_sala FOREIGN KEY (sala_id) REFERENCES salas(id)
@@ -82,10 +87,18 @@ VALUES
     3,
     'Dune: Part 3',
     130,
-    18,
+    18,z
     'Duna: Parte Tres se ambienta casi dos décadas después de que Paul Atreides tomó el control del Imperio. Convertido ahora en un despiadado Emperador, Paul deberá enfrentar las consecuencias de su reinado a medida que regresan viejos aliados, surgen aterradoras amenazas nuevas y la traición acecha en cada sombra.',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn6zu1u7Xudb3SG7pMkMZvIguVLOGU-JSs6Jd6FWZ9XA&s=10'
   );
+
+INSERT INTO candy (id, nombre, descripcion, precio, imagen_url) VALUES
+  (1, 'Pochoclos clásicos', 'Pochoclos salados recién preparados.', 4500.00, NULL),
+  (2, 'Pochoclos con caramelo', 'Pochoclos dulces cubiertos con caramelo.', 5200.00, NULL),
+  (3, 'Nachos con queso', 'Porción de nachos con salsa de queso.', 4800.00, NULL),
+  (4, 'Gaseosa grande', 'Gaseosa de 750 ml.', 3500.00, NULL),
+  (5, 'Combo clásico', 'Pochoclos clásicos y dos gaseosas grandes.', 10500.00, NULL);
+
 INSERT INTO asientos (id,sala_id,fila,numero) VALUES
   (1,1,'A',1),(2,1,'A',2),(3,1,'B',1),(4,1,'B',2),(5,2,'A',1),(6,2,'A',2),(7,2,'B',1),(8,2,'B',2);
 INSERT INTO funciones (id,pelicula_id,sala_id,horario_inicio,precio) VALUES
