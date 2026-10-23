@@ -27,6 +27,8 @@ public class ReservaResponseDTO {
     @Schema(example = "[20, 21]")
     private List<Long> idsEntradas;
 
+    private List<AsientoReservaDTO> asientos;
+
     @Schema(example = "17000.00")
     private BigDecimal total;
 }

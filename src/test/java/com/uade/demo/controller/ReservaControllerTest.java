@@ -37,6 +37,9 @@ class ReservaControllerTest {
     @MockitoBean
     private ReservaService reservaService;
 
+    @MockitoBean
+    private com.uade.demo.service.JwtService jwtService;
+
     @Test
     void createReserva_devuelve201YLaReservaCreada() throws Exception {
         when(reservaService.createReserva(any(ReservaRequestDTO.class))).thenReturn(respuestaDePrueba());

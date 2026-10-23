@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.demo.dto.ReservaRequestDTO;
+import com.uade.demo.dto.AsientoReservaDTO;
 import com.uade.demo.dto.ReservaResponseDTO;
 import com.uade.demo.exception.AsientoOcupadoException;
 import com.uade.demo.exception.ResourceNotFoundException;
@@ -63,13 +64,14 @@ public class ReservaService {
                 .toList();
     }
 
-    @Transactional 
+    @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public ReservaResponseDTO createReserva(ReservaRequestDTO reservaRequest) {
         Reserva reserva = new Reserva();
         Usuarios usuario = obtenerUsuarioAutenticado();
         reserva.setUsuario(usuario);
 
-        Funcion funcion = funcionRepository.findById(reservaRequest.getFuncionId())
+        // Serializa las reservas de una función hasta confirmar la transacción.
+        Funcion funcion = funcionRepository.findByIdForUpdate(reservaRequest.getFuncionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Función no encontrada con id: " + reservaRequest.getFuncionId()));
         reserva.setFuncion(funcion);
         
@@ -204,8 +206,13 @@ private ReservaResponseDTO toResponseDTO(Reserva reserva) {
     respuesta.setEstado(reserva.getEstado());
     respuesta.setFechaReserva(reserva.getCreadaEn());
     respuesta.setTotal(reserva.getTotal());
-    respuesta.setIdsEntradas(entradaRepository.findByReserva_Id(reserva.getId()).stream()
+    List<Entrada> entradas = entradaRepository.findByReserva_Id(reserva.getId());
+    respuesta.setIdsEntradas(entradas.stream()
             .map(Entrada::getId)
+            .toList());
+    respuesta.setAsientos(entradas.stream()
+            .map(Entrada::getAsiento)
+            .map(a -> new AsientoReservaDTO(a.getId(), a.getFila(), a.getNumero()))
             .toList());
     return respuesta;
 }

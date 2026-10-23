@@ -13,6 +13,13 @@ import com.uade.demo.model.EstadoReserva;
 
 @Repository
 public interface EntradaRepository extends JpaRepository<Entrada, Long> {
+    @Query("""
+        SELECT DISTINCT e.asiento.id FROM Entrada e
+        WHERE e.funcion.id = :funcionId AND e.reserva.estado <> :estadoCancelada
+        """)
+    List<Long> findAsientoIdsOcupados(@Param("funcionId") Long funcionId,
+            @Param("estadoCancelada") EstadoReserva estadoCancelada);
+
     List<Entrada> findByReserva_Id(Long reservaId);
     List<Entrada> findByFuncion_Id(Long funcionId);
     Optional<Entrada> findByCodigo(String codigo);

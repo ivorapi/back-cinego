@@ -64,7 +64,7 @@ class ReservaServiceTest {
         ReservaRequestDTO request = request(1L, List.of(10L, 11L));
 
         when(usuarioRepository.findByEmail(cliente.getEmail())).thenReturn(java.util.Optional.of(cliente));
-        when(funcionRepository.findById(1L)).thenReturn(java.util.Optional.of(funcion));
+        when(funcionRepository.findByIdForUpdate(1L)).thenReturn(java.util.Optional.of(funcion));
         when(asientoRepository.findAllById(request.getAsientoIds())).thenReturn(asientos);
         when(entradaRepository.existeEntradaActiva(anyLong(), anyLong(), any())).thenReturn(false);
         when(reservaRepository.save(any(Reserva.class))).thenAnswer(invocation -> {
@@ -96,7 +96,7 @@ class ReservaServiceTest {
         ReservaRequestDTO request = request(1L, List.of(10L));
 
         when(usuarioRepository.findByEmail(cliente.getEmail())).thenReturn(java.util.Optional.of(cliente));
-        when(funcionRepository.findById(1L)).thenReturn(java.util.Optional.of(funcion));
+        when(funcionRepository.findByIdForUpdate(1L)).thenReturn(java.util.Optional.of(funcion));
         when(asientoRepository.findAllById(request.getAsientoIds())).thenReturn(List.of(asiento));
         when(entradaRepository.existeEntradaActiva(eq(1L), eq(10L), any())).thenReturn(true);
 
@@ -119,7 +119,7 @@ class ReservaServiceTest {
         Usuarios cliente = clienteAutenticado();
         ReservaRequestDTO request = request(404L, List.of(10L));
         when(usuarioRepository.findByEmail(cliente.getEmail())).thenReturn(java.util.Optional.of(cliente));
-        when(funcionRepository.findById(404L)).thenReturn(java.util.Optional.empty());
+        when(funcionRepository.findByIdForUpdate(404L)).thenReturn(java.util.Optional.empty());
 
         assertThatThrownBy(() -> reservaService.createReserva(request))
                 .isInstanceOf(ResourceNotFoundException.class)
@@ -132,7 +132,7 @@ class ReservaServiceTest {
         Funcion funcion = funcionDePrueba();
         ReservaRequestDTO request = request(1L, List.of(999L));
         when(usuarioRepository.findByEmail(cliente.getEmail())).thenReturn(java.util.Optional.of(cliente));
-        when(funcionRepository.findById(1L)).thenReturn(java.util.Optional.of(funcion));
+        when(funcionRepository.findByIdForUpdate(1L)).thenReturn(java.util.Optional.of(funcion));
         when(asientoRepository.findAllById(request.getAsientoIds())).thenReturn(List.of());
 
         assertThatThrownBy(() -> reservaService.createReserva(request))
@@ -146,7 +146,7 @@ class ReservaServiceTest {
         Funcion funcion = funcionDePrueba();
         ReservaRequestDTO request = request(1L, List.of(10L, 10L));
         when(usuarioRepository.findByEmail(cliente.getEmail())).thenReturn(java.util.Optional.of(cliente));
-        when(funcionRepository.findById(1L)).thenReturn(java.util.Optional.of(funcion));
+        when(funcionRepository.findByIdForUpdate(1L)).thenReturn(java.util.Optional.of(funcion));
 
         assertThatThrownBy(() -> reservaService.createReserva(request))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -159,6 +159,7 @@ class ReservaServiceTest {
         Reserva reserva = reservaDePrueba(cliente, funcionDePrueba());
         Entrada entrada = new Entrada();
         entrada.setId(100L);
+        entrada.setAsiento(asiento(10L, reserva.getFuncion().getSala()));
 
         when(reservaRepository.findById(50L)).thenReturn(java.util.Optional.of(reserva));
         when(entradaRepository.findByReserva_Id(50L)).thenReturn(List.of(entrada));
@@ -251,6 +252,8 @@ class ReservaServiceTest {
         cliente.setId(1L);
         cliente.setEmail("cliente@cinego.test");
         cliente.setRol(Rol.CLIENTE);
+        org.mockito.Mockito.lenient().when(usuarioRepository.findByEmail(cliente.getEmail()))
+                .thenReturn(java.util.Optional.of(cliente));
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(cliente.getEmail(), null, List.of()));
         return cliente;
