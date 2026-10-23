@@ -1,21 +1,5 @@
 # CineGo
 
-## Asientos y reservas
-
-`GET /api/funciones/{id}/asientos` es público y devuelve un array ordenado por
-fila y número: `[{"id":1,"fila":"A","numero":1,"ocupado":false}]`.
-La ocupación corresponde a esa función: las reservas pendientes y confirmadas
-ocupan asientos; las canceladas los liberan. Una función inexistente devuelve 404.
-
-`POST /api/reservas` mantiene el cuerpo `{"funcionId":1,"asientoIds":[1,2]}`.
-Las respuestas de creación, consulta, listado de mis reservas y cancelación
-conservan `idsEntradas` y agregan `asientos`, con `id`, `fila` y `numero`.
-Las reservas simultáneas para una misma función se serializan con un bloqueo
-transaccional; intentar reservar un asiento ocupado devuelve 409.
-
-La prueba `ReservasHttpTest` inicia la API con H2 en un puerto aleatorio y valida
-el flujo mediante HTTP real, incluyendo autenticación, cancelación y concurrencia.
-
 CineGo es una API backend para la gestión de un sistema de cine.
 Permite administrar películas, salas y funciones de proyección.
 También contempla usuarios, reservas, entradas, asientos y estados de reserva.
