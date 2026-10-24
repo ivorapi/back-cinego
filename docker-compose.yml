@@ -1,6 +1,7 @@
 services:
   mysql:
     image: mysql:8.4
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
     container_name: cinego-mysql
     restart: unless-stopped
     environment:

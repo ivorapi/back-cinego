@@ -1,3 +1,6 @@
+-- El archivo esta codificado en UTF-8; la conexion de importacion debe usarlo tambien.
+SET NAMES utf8mb4;
+
 CREATE TABLE usuarios (
   id BIGINT NOT NULL AUTO_INCREMENT, email VARCHAR(100) NOT NULL, nombre VARCHAR(100) NOT NULL,
   apellido VARCHAR(100) NOT NULL, password_hash VARCHAR(255) NOT NULL, fecha_nacimiento DATE, sexo VARCHAR(20),
