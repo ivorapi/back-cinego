@@ -6,6 +6,34 @@ También contempla usuarios, reservas, entradas, asientos y estados de reserva.
 Incluye descuentos configurables y cálculo del precio final de las entradas.
 Su alcance comprende la exposición de estos servicios mediante una API REST.
 
+## Datos de ejemplo para reservas
+
+El seed de `initdb/01-schema-and-seed.sql` incluye 24 asientos por sala
+(filas A, B y C; números del 1 al 8) y seis funciones para el 24 y 25 de octubre
+de 2026. Cada cliente tiene reservas propias para probar `mis-reservas` y los
+controles de acceso. Credenciales exclusivas de desarrollo:
+
+| Email | Contraseña |
+| --- | --- |
+| `cliente@cinego.test` | `Cinego123!` |
+| `otro.cliente@cinego.test` | `Cinego123!` |
+
+| Función | Estado esperado del mapa |
+| --- | --- |
+| 1, Sala A | A1 y A2 confirmados; B1 pendiente; B2 libre por cancelación |
+| 2, Sala Premium | A1 y A2 pendientes; el resto libre |
+| 3, Sala A | B2 confirmado; A1, A2 y B1 libres, a diferencia de la función 1 |
+| 4, Sala Premium | Todos libres, con una reserva cancelada de B1 |
+| 5 y 6 | Todos libres, sin reservas |
+
+Por ejemplo, con el JWT de cualquiera de esos clientes,
+`POST /api/reservas` con `{"funcionId":1,"asientoIds":[4,9]}` reserva B2 y A3;
+intentar reservar el asiento 1 para esa función devuelve 409.
+
+Estos datos se cargan automáticamente **solo al inicializar una base vacía**.
+No se reemplazan reservas ni usuarios en una base existente. No vuelvas a ejecutar
+el script completo sobre ella: también contiene la creación de tablas.
+
 ## Aspectos técnicos
 
 - Desarrollado con Java 17 y Spring Boot.
@@ -21,8 +49,14 @@ Su alcance comprende la exposición de estos servicios mediante una API REST.
 Desde la raíz del repositorio, con Docker en ejecución:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
+
+Este comando compila y levanta la API en `http://localhost:8080` junto con MySQL.
+Swagger UI queda disponible en `http://localhost:8080/swagger-ui.html`.
+La API espera a que MySQL pase su healthcheck y se conecta por la red interna de
+Compose. Para levantar solamente la base y ejecutar Java desde el IDE, usá
+`docker compose up -d mysql`.
 
 Cuando el volumen de MySQL está vacío, Docker ejecuta `initdb/01-schema-and-seed.sql`.
 El catálogo inicial incluye La odisea, Spiderman: brand new day y Dune: Part 3.
