@@ -83,6 +83,7 @@ public class SecurityConfig {
                         // Lectura pública: lo que el front muestra sin iniciar sesión
                         .requestMatchers(HttpMethod.GET,
                                 "/api/peliculas/**",
+                                "/api/candy/**",
                                 "/api/funciones/**",
                                 "/api/salas/**")
                         .permitAll()
@@ -94,13 +95,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**")
                         .hasRole(Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.POST,
-                                "/api/peliculas/**", "/api/salas/**", "/api/funciones/**", "/api/descuentos/**")
+                                "/api/peliculas/**", "/api/candy/**", "/api/salas/**", "/api/funciones/**",
+                                "/api/descuentos/**")
                         .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.PUT,
-                                "/api/peliculas/**", "/api/salas/**", "/api/funciones/**")
+                                "/api/peliculas/**", "/api/candy/**", "/api/salas/**", "/api/funciones/**")
                         .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE,
-                                "/api/peliculas/**", "/api/salas/**", "/api/funciones/**", "/api/descuentos/**")
+                                "/api/peliculas/**", "/api/candy/**", "/api/salas/**", "/api/funciones/**",
+                                "/api/descuentos/**")
                         .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.PATCH, "/api/descuentos/**")
                         .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
