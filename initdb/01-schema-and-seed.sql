@@ -91,7 +91,7 @@ VALUES
     3,
     'Dune: Part 3',
     130,
-    18,z
+    18,
     'Duna: Parte Tres se ambienta casi dos décadas después de que Paul Atreides tomó el control del Imperio. Convertido ahora en un despiadado Emperador, Paul deberá enfrentar las consecuencias de su reinado a medida que regresan viejos aliados, surgen aterradoras amenazas nuevas y la traición acecha en cada sombra.',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn6zu1u7Xudb3SG7pMkMZvIguVLOGU-JSs6Jd6FWZ9XA&s=10'
   );
