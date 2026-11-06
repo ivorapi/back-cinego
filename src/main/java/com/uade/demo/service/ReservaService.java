@@ -101,6 +101,19 @@ public class ReservaService {
     }
 
     @Transactional
+    public ReservaResponseDTO confirmarReserva(Long id) {
+        Reserva reserva = buscarReserva(id);
+        validarAccesoAReserva(reserva);
+
+        if (reserva.getEstado() != EstadoReserva.PENDIENTE) {
+            throw new IllegalArgumentException("Solo se pueden confirmar reservas pendientes");
+        }
+
+        reserva.setEstado(EstadoReserva.CONFIRMADA);
+        return toResponseDTO(reserva);
+    }
+
+    @Transactional
     public ReservaResponseDTO cancelarReserva(Long id) {
         Reserva reserva = buscarReserva(id);
         validarAccesoAReserva(reserva);

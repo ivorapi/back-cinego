@@ -79,8 +79,19 @@ class ReservasHttpTest {
         assertThat(call("POST", "/api/reservas", request, token).statusCode()).isEqualTo(409);
         body(call("GET", "/api/reservas/" + id, "", token), 200);
         assertThat(body(call("GET", "/api/reservas/mis-reservas", "", token), 200).size()).isEqualTo(1);
+        String otro = "{\"email\":\"otro-http@cinego.test\",\"password\":\"test-pass-123\",\"nombre\":\"Otro\",\"apellido\":\"Test\"}";
+        assertThat(call("POST", "/api/usuarios/registro", otro, null).statusCode()).isEqualTo(201);
+        String otroToken = call("POST", "/api/usuarios/login", otro, null).body();
+        assertThat(call("PATCH", "/api/reservas/" + id + "/confirmar", "", null).statusCode()).isIn(401, 403);
+        assertThat(call("PATCH", "/api/reservas/" + id + "/confirmar", "", otroToken).statusCode()).isEqualTo(403);
+        assertThat(body(call("PATCH", "/api/reservas/" + id + "/confirmar", "", token), 200)
+            .get("estado").asText()).isEqualTo("CONFIRMADA");
+        assertThat(body(call("GET", "/api/reservas/" + id, "", token), 200)
+            .get("estado").asText()).isEqualTo("CONFIRMADA");
+        assertThat(call("PATCH", "/api/reservas/" + id + "/confirmar", "", token).statusCode()).isEqualTo(400);
         assertThat(body(call("PATCH", "/api/reservas/" + id + "/cancelar", "", token), 200)
             .get("estado").asText()).isEqualTo("CANCELADA");
+        assertThat(call("PATCH", "/api/reservas/" + id + "/confirmar", "", token).statusCode()).isEqualTo(400);
         assertThat(body(call("GET", path, "", null), 200).get(0).get("ocupado").asBoolean()).isFalse();
         assertThat(call("PATCH", "/api/reservas/" + id + "/cancelar", "", token).statusCode()).isEqualTo(400);
         assertThat(call("POST", "/api/reservas", "{\"funcionId\":" + funcion.getId() + ",\"asientoIds\":[]}", token)
