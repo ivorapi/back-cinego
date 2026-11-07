@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 CREATE TABLE usuarios (
   id BIGINT NOT NULL AUTO_INCREMENT, email VARCHAR(100) NOT NULL, nombre VARCHAR(100) NOT NULL,
   apellido VARCHAR(100) NOT NULL, password_hash VARCHAR(255) NOT NULL, fecha_nacimiento DATE, sexo VARCHAR(20),
@@ -91,9 +93,89 @@ VALUES
     3,
     'Dune: Part 3',
     130,
-    18,z
+    18,
     'Duna: Parte Tres se ambienta casi dos décadas después de que Paul Atreides tomó el control del Imperio. Convertido ahora en un despiadado Emperador, Paul deberá enfrentar las consecuencias de su reinado a medida que regresan viejos aliados, surgen aterradoras amenazas nuevas y la traición acecha en cada sombra.',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn6zu1u7Xudb3SG7pMkMZvIguVLOGU-JSs6Jd6FWZ9XA&s=10'
+  ),
+  (
+    4,
+    'Gladiator',
+    130,
+    16,
+    'Un general romano es traicionado y busca venganza en la arena como gladiador.',
+    'https://cdn.posteritati.com/posters/000/000/049/763/gladiator-md-web.jpg'
+  ),
+  (
+    5,
+    'The Godfather',
+    195,
+    16,
+    'El patriarca de una familia mafiosa transfiere el control de su imperio a su hijo renuente.',
+    'https://cdng.europosters.eu/pod_public/1300/262788.jpg'
+  ),
+  (
+    6,
+    'Forrest Gump',
+    142,
+    13,
+    'La vida extraordinaria de un hombre simple que atraviesa décadas de la historia estadounidense.',
+    'https://cdng.europosters.eu/pod_public/1300/266241.jpg'
+  ),
+  (
+    7,
+    'Schindler''s List',
+    175,
+    16,
+    'Un industrial alemán salva a más de mil judíos durante el Holocausto.',
+    'https://www.originalfilmart.com/cdn/shop/products/schindlers_list_1993_saul_bass_original_film_art_1600x.jpg'
+  ),
+  (
+    8,
+    'Fight Club',
+    139,
+    18,
+    'Un oficinista insomne forma un club clandestino de combates con un carismático vendedor de jabón.',
+    'https://cdng.europosters.eu/pod_public/750/262697.jpg'
+  ),
+  (
+    9,
+    'Se7en',
+    118,
+    18,
+    'Dos detectives persiguen a un asesino en serie que mata según los siete pecados capitales.',
+    'https://www.originalfilmart.com/cdn/shop/products/Seven_1995_fr_original_film_art_a_fb6d7a06-1ac1-44f4-9d9a-afede5b090d7_1600x.jpg'
+  ),
+  (
+    10,
+    'Django Unchained',
+    151,
+    18,
+    'Un esclavo liberado se une a un cazarrecompensas para rescatar a su esposa.',
+    'https://i.ebayimg.com/images/g/VYgAAOSwTzNkMFso/s-l1200.jpg'
+  ),
+  (
+    11,
+    'The Departed',
+    161,
+    18,
+    'Un policía infiltrado y un criminal infiltrado en la policía se enfrentan en Boston.',
+    'https://cdng.europosters.eu/pod_public/1300/263649.jpg'
+  ),
+  (
+    12,
+    'Joker',
+    124,
+    16,
+    'Un comediante fallido desciende a la locura y se convierte en un ícono del caos en Gotham.',
+    'https://cdng.europosters.eu/pod_public/750/263142.jpg'
+  ),
+  (
+    13,
+    'Avengers: Endgame',
+    149,
+    13,
+    'Los Vengadores restantes intentan revertir el devastador plan de Thanos.',
+    'https://cdng.europosters.eu/pod_public/1300/322073.jpg'
   );
 
 INSERT INTO candy (id, nombre, descripcion, precio, imagen_url) VALUES
