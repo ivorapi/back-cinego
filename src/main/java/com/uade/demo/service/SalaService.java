@@ -46,9 +46,8 @@ public class SalaService {
 
     public SalaResponseDTO save(SalaRequestDTO dto) {
         validar(dto);
-        validarDistribucion(dto.getFilas(), dto.getAsientosPorFila());
         Salas sala = new Salas();
-        sala.setNombre(dto.getNombre());
+        aplicarDatos(sala, dto);
         Salas guardada = salaRepository.save(sala);
         guardada.setAsientos(generarAsientos(guardada, dto.getFilas(), dto.getAsientosPorFila()));
         return new SalaResponseDTO(guardada);
@@ -57,23 +56,23 @@ public class SalaService {
     public SalaResponseDTO update(Long id, SalaRequestDTO dto) {
         validar(dto);
         Salas existente = buscarOFallar(id);
-        existente.setNombre(dto.getNombre());
 
-        // Si no mandan la distribución, los asientos quedan como están
-        if (dto.getFilas() != null || dto.getAsientosPorFila() != null) {
-            validarDistribucion(dto.getFilas(), dto.getAsientosPorFila());
-            SalaResponseDTO actual = new SalaResponseDTO(existente);
-            boolean cambio = actual.getFilas() != dto.getFilas()
-                    || actual.getAsientosPorFila() != dto.getAsientosPorFila();
+        boolean cambioGrilla = existente.getFilas() != dto.getFilas()
+                || existente.getAsientosPorFila() != dto.getAsientosPorFila();
+        boolean sinAsientos = existente.getAsientos() == null || existente.getAsientos().isEmpty();
 
-            if (cambio) {
-                if (entradaRepository.existsByAsiento_Sala_Id(id)) {
-                    throw new IllegalArgumentException(
-                            "No se puede cambiar la cantidad de asientos: la sala ya tiene entradas vendidas.");
-                }
-                asientoRepository.deleteAll(existente.getAsientos());
-                existente.setAsientos(generarAsientos(existente, dto.getFilas(), dto.getAsientosPorFila()));
+        aplicarDatos(existente, dto);
+
+        if (cambioGrilla || sinAsientos) {
+            if (!sinAsientos && entradaRepository.existsByAsiento_Sala_Id(id)) {
+                throw new IllegalArgumentException(
+                        "No se puede cambiar la cantidad de asientos: la sala ya tiene entradas vendidas.");
             }
+            if (!sinAsientos) {
+                asientoRepository.deleteAll(existente.getAsientos());
+                existente.getAsientos().clear();
+            }
+            existente.setAsientos(generarAsientos(existente, dto.getFilas(), dto.getAsientosPorFila()));
         }
 
         return new SalaResponseDTO(salaRepository.save(existente));
@@ -86,7 +85,6 @@ public class SalaService {
             throw new IllegalArgumentException("No se puede eliminar la sala: tiene " + funciones
                     + (funciones == 1 ? " función programada." : " funciones programadas."));
         }
-        // Primero los asientos, porque apuntan a la sala
         asientoRepository.deleteAll(sala.getAsientos());
         salaRepository.delete(sala);
     }
@@ -95,15 +93,38 @@ public class SalaService {
         salaRepository.deleteAll();
     }
 
+    /**
+     * Si la sala tiene grilla configurada pero no hay butacas, las genera.
+     * Sirve para salas creadas antes de persistir asientos individuales.
+     */
+    public void asegurarAsientos(Long salaId) {
+        Salas sala = buscarOFallar(salaId);
+        if (sala.getFilas() < 1 || sala.getAsientosPorFila() < 1) {
+            return;
+        }
+        List<Asiento> existentes = asientoRepository.findBySala_Id(salaId);
+        if (!existentes.isEmpty()) {
+            return;
+        }
+        sala.setAsientos(generarAsientos(sala, sala.getFilas(), sala.getAsientosPorFila()));
+    }
+
     private Salas buscarOFallar(Long id) {
         return salaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la sala con id: " + id));
+    }
+
+    private void aplicarDatos(Salas sala, SalaRequestDTO dto) {
+        sala.setNombre(dto.getNombre().trim());
+        sala.setFilas(dto.getFilas());
+        sala.setAsientosPorFila(dto.getAsientosPorFila());
     }
 
     private void validar(SalaRequestDTO dto) {
         if (dto.getNombre() == null || dto.getNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre de la sala es requerido");
         }
+        validarDistribucion(dto.getFilas(), dto.getAsientosPorFila());
     }
 
     private void validarDistribucion(Integer filas, Integer asientosPorFila) {
@@ -116,7 +137,6 @@ public class SalaService {
         }
     }
 
-    // Crea los asientos A1, A2... de cada fila
     private List<Asiento> generarAsientos(Salas sala, int filas, int asientosPorFila) {
         List<Asiento> asientos = new ArrayList<>();
         for (int f = 0; f < filas; f++) {
@@ -132,7 +152,7 @@ public class SalaService {
         return new ArrayList<>(asientoRepository.saveAll(asientos));
     }
 
-    // 0 -> "A", 25 -> "Z", 26 -> "AA" (hacen falta dos letras a partir de la fila 27)
+    // 0 -> "A", 25 -> "Z", 26 -> "AA"
     private String nombreFila(int indice) {
         String nombre = "";
         int resto = indice;

@@ -33,16 +33,18 @@ public class FuncionService {
     private final AsientoRepository asientoRepository;
     private final EntradaRepository entradaRepository;
     private final ReservaRepository reservaRepository;
+    private final SalaService salaService;
 
     public FuncionService(FuncionRepository funcionRepository, PeliculaRepository peliculaRepository,
             SalaRepository salaRepository, AsientoRepository asientoRepository, EntradaRepository entradaRepository,
-            ReservaRepository reservaRepository) {
+            ReservaRepository reservaRepository, SalaService salaService) {
         this.funcionRepository = funcionRepository;
         this.peliculaRepository = peliculaRepository;
         this.salaRepository = salaRepository;
         this.asientoRepository = asientoRepository;
         this.entradaRepository = entradaRepository;
         this.reservaRepository = reservaRepository;
+        this.salaService = salaService;
     }
 
     @Transactional
@@ -50,6 +52,7 @@ public class FuncionService {
         reservaRepository.cancelarVencidas(EstadoReserva.PENDIENTE, EstadoReserva.CANCELADA,
                 LocalDateTime.now().minusMinutes(10));
         Funcion funcion = buscarPorId(id);
+        salaService.asegurarAsientos(funcion.getSalaId());
         var ocupados = new HashSet<>(entradaRepository.findAsientoIdsOcupados(id, EstadoReserva.CANCELADA));
         return asientoRepository.findBySala_Id(funcion.getSalaId()).stream()
                 .sorted(Comparator.comparing(Asiento::getFila).thenComparingInt(Asiento::getNumero))

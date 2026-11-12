@@ -8,7 +8,8 @@ CREATE TABLE usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE salas (
-  id BIGINT NOT NULL AUTO_INCREMENT, nombre VARCHAR(100) NOT NULL, PRIMARY KEY (id)
+  id BIGINT NOT NULL AUTO_INCREMENT, nombre VARCHAR(100) NOT NULL,
+  filas INT NOT NULL, asientos_por_fila INT NOT NULL, PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE peliculas (
@@ -65,7 +66,7 @@ INSERT INTO usuarios (id,email,nombre,apellido,password_hash,fecha_nacimiento,se
   (1,'ana.garcia@cinego.test','Ana','Garcia','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','1998-04-15','F','ADMIN'),
   (2,'bruno.lopez@cinego.test','Bruno','Lopez','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','1995-09-02','M','ADMIN'),
   (4,'superadmin@cinego.com','Super','Admin','$2y$10$ECkvd9P5..F9ILIiEJTIYeCBpdSrn2od3TdeFc5gy.Won6u6szVeW',NULL,NULL,'SUPER_ADMIN');
-INSERT INTO salas (id,nombre) VALUES (1,'Sala A'),(2,'Sala Premium');
+INSERT INTO salas (id,nombre,filas,asientos_por_fila) VALUES (1,'Sala A',3,8),(2,'Sala Premium',3,8);
 -- Clientes de desarrollo: password Cinego123!
 INSERT INTO usuarios (id,email,nombre,apellido,password_hash,fecha_nacimiento,sexo,rol) VALUES
   (5,'cliente@cinego.test','Lucia','Perez','$2a$10$RF.wn0y5WODGbn0tYqk1IuuKrPg7OLmrpytepZKikDh26VbP/YqSG','1998-05-12','F','CLIENTE'),
