@@ -113,7 +113,7 @@ class ReservaControllerTest {
         respuesta.setIdReserva(50L);
         respuesta.setIdFuncion(1L);
         respuesta.setEstado(EstadoReserva.PENDIENTE);
-        respuesta.setFechaReserva(LocalDateTime.of(2026, 10, 1, 20, 0));
+        respuesta.setFechaReserva(LocalDateTime.of(2026, 10, 1, 20, 0).atOffset(java.time.ZoneOffset.UTC));
         respuesta.setIdsEntradas(List.of(100L, 101L));
         respuesta.setTotal(new BigDecimal("16000.00"));
         return respuesta;

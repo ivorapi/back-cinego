@@ -6,13 +6,17 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.*;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.sql.Timestamp;
+import java.util.Base64;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import com.uade.demo.model.*;
 import com.uade.demo.repository.*;
 import tools.jackson.databind.JsonNode;
@@ -29,6 +33,7 @@ class ReservasHttpTest {
     @Autowired PeliculaRepository peliculas;
     @Autowired FuncionRepository funciones;
     @Autowired AsientoRepository asientos;
+    @Autowired JdbcTemplate jdbc;
     final HttpClient http = HttpClient.newHttpClient();
     final JsonMapper json = new JsonMapper();
 
@@ -70,6 +75,7 @@ class ReservasHttpTest {
         String request = "{\"funcionId\":" + funcion.getId() + ",\"asientoIds\":[" + a.getId() + "]}";
         assertThat(call("POST", "/api/reservas", request, null).statusCode()).isIn(401, 403);
         var creada = body(call("POST", "/api/reservas", request, token), 201);
+        assertThat(OffsetDateTime.parse(creada.get("fechaReserva").asText())).isNotNull();
         long id = creada.get("idReserva").asLong();
         assertThat(creada.get("asientos").get(0).get("fila").asText()).isEqualTo("A");
         assertThat(creada.get("idsEntradas").size()).isEqualTo(1);
@@ -104,5 +110,46 @@ class ReservasHttpTest {
     int reserve(String request, String token) {
         try { return call("POST", "/api/reservas", request, token).statusCode(); }
         catch (Exception ex) { throw new RuntimeException(ex); }
+    }
+
+    @Test
+    void reservasVencidasYCancelacionAlCerrarSesion() throws Exception {
+        Salas sala = new Salas(); sala.setNombre("Sala vencimiento"); sala = salas.save(sala);
+        Peliculas pelicula = new Peliculas(); pelicula.setTitulo("Prueba vencimiento");
+        pelicula.setDuracion(120); pelicula.setClasificacion(13); pelicula = peliculas.save(pelicula);
+        Funcion funcion = new Funcion(); funcion.setSala(sala); funcion.setPelicula(pelicula);
+        funcion.setHorarioInicio(LocalDateTime.now().plusDays(1)); funcion.setPrecio(new BigDecimal("1000"));
+        funcion = funciones.save(funcion);
+        Asiento a = new Asiento(); a.setSala(sala); a.setFila("B"); a.setNumero(1); a = asientos.save(a);
+        Asiento b = new Asiento(); b.setSala(sala); b.setFila("B"); b.setNumero(2); b = asientos.save(b);
+        Asiento c = new Asiento(); c.setSala(sala); c.setFila("B"); c.setNumero(3); c = asientos.save(c);
+        Asiento d = new Asiento(); d.setSala(sala); d.setFila("B"); d.setNumero(4); d = asientos.save(d);
+        String uno = "{\"email\":\"vencimiento-uno@cinego.test\",\"password\":\"test-pass-123\",\"nombre\":\"Uno\",\"apellido\":\"Test\"}";
+        String dos = "{\"email\":\"vencimiento-dos@cinego.test\",\"password\":\"test-pass-123\",\"nombre\":\"Dos\",\"apellido\":\"Test\"}";
+        assertThat(call("POST", "/api/usuarios/registro", uno, null).statusCode()).isEqualTo(201);
+        assertThat(call("POST", "/api/usuarios/registro", dos, null).statusCode()).isEqualTo(201);
+        String tokenUno = call("POST", "/api/usuarios/login", uno, null).body();
+        String tokenDos = call("POST", "/api/usuarios/login", dos, null).body();
+        JsonNode claims = json.readTree(Base64.getUrlDecoder().decode(tokenUno.split("\\.")[1]));
+        assertThat(claims.get("exp").asLong() - claims.get("iat").asLong()).isEqualTo(1800);
+
+        String base = "{\"funcionId\":" + funcion.getId() + ",\"asientoIds\":[%d]}";
+        long vencida = body(call("POST", "/api/reservas", base.formatted(a.getId()), tokenUno), 201).get("idReserva").asLong();
+        long pendiente = body(call("POST", "/api/reservas", base.formatted(b.getId()), tokenUno), 201).get("idReserva").asLong();
+        long ajena = body(call("POST", "/api/reservas", base.formatted(c.getId()), tokenDos), 201).get("idReserva").asLong();
+        long confirmada = body(call("POST", "/api/reservas", base.formatted(d.getId()), tokenUno), 201).get("idReserva").asLong();
+        assertThat(body(call("PATCH", "/api/reservas/" + confirmada + "/confirmar", "", tokenUno), 200).get("estado").asText()).isEqualTo("CONFIRMADA");
+        jdbc.update("UPDATE reservas SET creada_en = ? WHERE id = ?", Timestamp.valueOf(LocalDateTime.now().minusMinutes(11)), vencida);
+        jdbc.update("UPDATE reservas SET creada_en = ? WHERE id = ?", Timestamp.valueOf(LocalDateTime.now().minusMinutes(11)), confirmada);
+
+        assertThat(call("PATCH", "/api/reservas/" + vencida + "/confirmar", "", tokenUno).statusCode()).isEqualTo(400);
+        JsonNode butacas = body(call("GET", "/api/funciones/" + funcion.getId() + "/asientos", "", null), 200);
+        assertThat(butacas.get(0).get("ocupado").asBoolean()).isFalse();
+        assertThat(body(call("GET", "/api/reservas/" + vencida, "", tokenUno), 200).get("estado").asText()).isEqualTo("CANCELADA");
+        assertThat(call("PATCH", "/api/reservas/pendientes/cancelar", "", null).statusCode()).isIn(401, 403);
+        assertThat(call("PATCH", "/api/reservas/pendientes/cancelar", "", tokenUno).statusCode()).isEqualTo(204);
+        assertThat(body(call("GET", "/api/reservas/" + pendiente, "", tokenUno), 200).get("estado").asText()).isEqualTo("CANCELADA");
+        assertThat(body(call("GET", "/api/reservas/" + confirmada, "", tokenUno), 200).get("estado").asText()).isEqualTo("CONFIRMADA");
+        assertThat(body(call("GET", "/api/reservas/" + ajena, "", tokenDos), 200).get("estado").asText()).isEqualTo("PENDIENTE");
     }
 }
