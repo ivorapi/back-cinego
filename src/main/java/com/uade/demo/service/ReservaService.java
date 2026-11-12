@@ -4,6 +4,8 @@ import com.uade.demo.repository.EntradaRepository;
 import com.uade.demo.repository.UsuarioRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.uade.demo.dto.ReservaRequestDTO;
 import com.uade.demo.dto.AsientoReservaDTO;
@@ -49,15 +52,17 @@ public class ReservaService {
 
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ReservaResponseDTO getReservaById(Long id) {
+        cancelarVencidas();
         Reserva reserva = buscarReserva(id);
         validarAccesoAReserva(reserva);
         return toResponseDTO(reserva);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ReservaResponseDTO> getMisReservas() {
+        cancelarVencidas();
         Usuarios usuario = obtenerUsuarioAutenticado();
         return reservaRepository.findByUsuario_Id(usuario.getId()).stream()
                 .map(this::toResponseDTO)
@@ -66,6 +71,7 @@ public class ReservaService {
 
     @Transactional(isolation = org.springframework.transaction.annotation.Isolation.READ_COMMITTED)
     public ReservaResponseDTO createReserva(ReservaRequestDTO reservaRequest) {
+        cancelarVencidas();
         Reserva reserva = new Reserva();
         Usuarios usuario = obtenerUsuarioAutenticado();
         reserva.setUsuario(usuario);
@@ -105,12 +111,28 @@ public class ReservaService {
         Reserva reserva = buscarReserva(id);
         validarAccesoAReserva(reserva);
 
-        if (reserva.getEstado() != EstadoReserva.PENDIENTE) {
+        int actualizadas = reservaRepository.confirmarPendiente(id, EstadoReserva.PENDIENTE,
+                EstadoReserva.CONFIRMADA, LocalDateTime.now().minusMinutes(10));
+        if (actualizadas == 0) {
             throw new IllegalArgumentException("Solo se pueden confirmar reservas pendientes");
         }
 
+        // El UPDATE condicional evita confirmar una reserva vencida o cancelada.
         reserva.setEstado(EstadoReserva.CONFIRMADA);
         return toResponseDTO(reserva);
+    }
+
+    @Transactional
+    public void cancelarPendientesDeUsuario() {
+        Usuarios usuario = obtenerUsuarioAutenticado();
+        reservaRepository.cancelarPendientesDeUsuario(EstadoReserva.PENDIENTE, EstadoReserva.CANCELADA, usuario.getId());
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    @Transactional
+    public void cancelarVencidas() {
+        reservaRepository.cancelarVencidas(EstadoReserva.PENDIENTE, EstadoReserva.CANCELADA,
+                LocalDateTime.now().minusMinutes(10));
     }
 
     @Transactional
@@ -217,7 +239,8 @@ private ReservaResponseDTO toResponseDTO(Reserva reserva) {
     respuesta.setIdReserva(reserva.getId());
     respuesta.setIdFuncion(reserva.getFuncionId());
     respuesta.setEstado(reserva.getEstado());
-    respuesta.setFechaReserva(reserva.getCreadaEn());
+    respuesta.setFechaReserva(reserva.getCreadaEn() == null ? null
+            : reserva.getCreadaEn().atZone(ZoneId.systemDefault()).toOffsetDateTime());
     respuesta.setTotal(reserva.getTotal());
     List<Entrada> entradas = entradaRepository.findByReserva_Id(reserva.getId());
     respuesta.setIdsEntradas(entradas.stream()

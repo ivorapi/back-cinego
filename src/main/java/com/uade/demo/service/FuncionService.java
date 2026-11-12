@@ -3,11 +3,13 @@ package com.uade.demo.service;
 import java.util.List;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.time.LocalDateTime;
 import com.uade.demo.dto.AsientoResponseDTO;
 import com.uade.demo.model.Asiento;
 import com.uade.demo.model.EstadoReserva;
 import com.uade.demo.repository.AsientoRepository;
 import com.uade.demo.repository.EntradaRepository;
+import com.uade.demo.repository.ReservaRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,18 +32,23 @@ public class FuncionService {
     private final SalaRepository salaRepository;
     private final AsientoRepository asientoRepository;
     private final EntradaRepository entradaRepository;
+    private final ReservaRepository reservaRepository;
 
     public FuncionService(FuncionRepository funcionRepository, PeliculaRepository peliculaRepository,
-            SalaRepository salaRepository, AsientoRepository asientoRepository, EntradaRepository entradaRepository) {
+            SalaRepository salaRepository, AsientoRepository asientoRepository, EntradaRepository entradaRepository,
+            ReservaRepository reservaRepository) {
         this.funcionRepository = funcionRepository;
         this.peliculaRepository = peliculaRepository;
         this.salaRepository = salaRepository;
         this.asientoRepository = asientoRepository;
         this.entradaRepository = entradaRepository;
+        this.reservaRepository = reservaRepository;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<AsientoResponseDTO> getAsientos(Long id) {
+        reservaRepository.cancelarVencidas(EstadoReserva.PENDIENTE, EstadoReserva.CANCELADA,
+                LocalDateTime.now().minusMinutes(10));
         Funcion funcion = buscarPorId(id);
         var ocupados = new HashSet<>(entradaRepository.findAsientoIdsOcupados(id, EstadoReserva.CANCELADA));
         return asientoRepository.findBySala_Id(funcion.getSalaId()).stream()

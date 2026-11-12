@@ -1,7 +1,7 @@
 package com.uade.demo.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import com.uade.demo.model.EstadoReserva;
@@ -21,8 +21,8 @@ public class ReservaResponseDTO {
     @Schema(example = "PENDIENTE")
     private EstadoReserva estado;
 
-    @Schema(example = "2026-09-18T20:30:00")
-    private LocalDateTime fechaReserva;
+    @Schema(example = "2026-09-18T20:30:00-03:00")
+    private OffsetDateTime fechaReserva;
 
     @Schema(example = "[20, 21]")
     private List<Long> idsEntradas;
