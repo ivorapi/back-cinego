@@ -15,6 +15,7 @@ import com.uade.demo.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -23,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String HEADER_NAME = "Authorization";
     private static final String HEADER_PREFIX = "Bearer ";
+    private static final String COOKIE_NAME = "token";
 
     private final JwtService jwtService;
 
@@ -34,11 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String header = request.getHeader(HEADER_NAME);
+        String token = extraerToken(request);
 
-        if (header != null && header.startsWith(HEADER_PREFIX)) {
-            String token = header.substring(HEADER_PREFIX.length());
-
+        if (token != null) {
             try {
                 String email = jwtService.extraerEmail(token);
                 String rol = jwtService.extraerRol(token);
@@ -54,5 +54,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    // busca el token primero en el header Authorization (Swagger, tests)
+    // y si no está, en la cookie HttpOnly que se crea al hacer login
+    private String extraerToken(HttpServletRequest request) {
+        String header = request.getHeader(HEADER_NAME);
+        if (header != null && header.startsWith(HEADER_PREFIX)) {
+            return header.substring(HEADER_PREFIX.length());
+        }
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (COOKIE_NAME.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
     }
 }

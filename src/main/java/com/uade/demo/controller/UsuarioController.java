@@ -10,9 +10,13 @@ import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.service.UsuarioService;
 
+import java.time.Duration;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+
+    // cuánto dura el token (en milisegundos), lo usamos también para la cookie
+    @Value("${jwt.expiration}")
+    private long expiration;
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -112,11 +120,23 @@ public class UsuarioController {
     //login de usuario
     // post localhost:8080/api/usuarios/login
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesión", description = "Endpoint público. Devuelve un JWT para usar como Bearer token.")
+    @Operation(summary = "Iniciar sesión", description = "Endpoint público. Devuelve un JWT para usar como Bearer token y además lo guarda en una cookie HttpOnly llamada 'token'.")
     @SecurityRequirements
     public ResponseEntity<String> loginUsuario(@RequestBody LoginRequestDTO request) {
         String token = usuarioService.login(request);
-        return ResponseEntity.ok(token);
+
+        ResponseCookie cookie = ResponseCookie
+                .from("token", token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(Duration.ofMillis(expiration))
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(token);
     }
 
     // crear un usuario admin
