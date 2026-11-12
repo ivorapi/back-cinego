@@ -22,6 +22,12 @@ public class Salas {
     @Column(nullable = false, length = 100)
     private String nombre;
 
+    @Column(nullable = false)
+    private int filas;
+
+    @Column(nullable = false)
+    private int asientosPorFila;
+
     @JsonIgnore
     @OneToMany(mappedBy = "sala")
     private List<Asiento> asientos = new ArrayList<>();

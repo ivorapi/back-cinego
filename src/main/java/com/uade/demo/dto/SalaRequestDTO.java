@@ -10,9 +10,6 @@ import lombok.Setter;
 public class SalaRequestDTO {
 
     private String nombre;
-
-    // Distribución de la sala: filas (A, B, C...) y asientos por fila.
-    // Al editar se pueden mandar en null para dejar los asientos como están.
     private Integer filas;
     private Integer asientosPorFila;
 }
