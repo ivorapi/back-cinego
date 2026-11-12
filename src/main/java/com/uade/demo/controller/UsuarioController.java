@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.demo.dto.LoginRequestDTO;
 import com.uade.demo.dto.RegistroRequestDTO;
+import com.uade.demo.dto.UsuarioResponseDTO;
 import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.service.UsuarioService;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +50,16 @@ public class UsuarioController {
     @GetMapping
     public List<Usuarios> getAllUsuarios() {
         return usuarioService.findAll();
+    }
+
+    // devolver el usuario logueado (sale del token de la cookie o del header)
+    // get localhost:8080/api/usuarios/me
+    @GetMapping("/me")
+    @Operation(summary = "Usuario actual", description = "Devuelve los datos del usuario logueado. Sirve para que el front sepa quién está logueado sin leer el token.")
+    public ResponseEntity<UsuarioResponseDTO> getUsuarioActual(Authentication authentication) {
+        // el filtro JWT guarda el email del usuario como "name" de la autenticación
+        Usuarios usuario = usuarioService.findByEmail(authentication.getName());
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
     //Buscar por id

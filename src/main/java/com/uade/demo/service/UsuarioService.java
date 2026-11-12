@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.uade.demo.dto.LoginRequestDTO;
 import com.uade.demo.dto.RegistroRequestDTO;
+import com.uade.demo.exception.ResourceNotFoundException;
 import com.uade.demo.model.Usuarios;
 import com.uade.demo.repository.UsuarioRepository;
 
@@ -38,6 +39,11 @@ public class UsuarioService {
     
     public Usuarios findById(Long id) {
         return usuarioRepository.findById(id).orElse(null);
+    }
+
+    public Usuarios findByEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     }
 
     public Usuarios save(Usuarios usuario) {
