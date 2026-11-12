@@ -139,6 +139,27 @@ public class UsuarioController {
                 .body(token);
     }
 
+    // logout de usuario: borra la cookie del token
+    // post localhost:8080/api/usuarios/logout
+    @PostMapping("/logout")
+    @Operation(summary = "Cerrar sesión", description = "Endpoint público. Borra la cookie HttpOnly 'token'.")
+    @SecurityRequirements
+    public ResponseEntity<Void> logoutUsuario() {
+        // misma cookie pero vacía y con maxAge 0: el navegador la borra
+        ResponseCookie cookie = ResponseCookie
+                .from("token", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .build();
+    }
+
     // crear un usuario admin
     // post localhost:8080/api/usuarios/crearAdmin
     @PostMapping("/crear-admin")

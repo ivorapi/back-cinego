@@ -58,6 +58,8 @@ public class SecurityConfig {
                 List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(
                 List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+        // permite que el front (localhost:5173) mande y reciba la cookie del token
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -74,6 +76,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/usuarios/login",
+                                "/api/usuarios/logout",
                                 "/api/usuarios/registro",
                                 "/error",
                                 "/swagger-ui.html",
