@@ -24,6 +24,9 @@ public interface EntradaRepository extends JpaRepository<Entrada, Long> {
     List<Entrada> findByFuncion_Id(Long funcionId);
     Optional<Entrada> findByCodigo(String codigo);
 
+    // Si algún asiento de la sala tiene entradas, no se pueden regenerar sus asientos
+    boolean existsByAsiento_Sala_Id(Long salaId);
+
     @Query("""
         SELECT COUNT(e) > 0
         FROM Entrada e
