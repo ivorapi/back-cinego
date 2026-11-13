@@ -23,7 +23,22 @@ public class PeliculaService {
     }
 
     public List<PeliculaResponseDTO> findAll() {
-        return peliculaRepository.findAll().stream()
+        return findAll(null, null);
+    }
+
+    public List<PeliculaResponseDTO> findAll(String titulo, String genero) {
+        String filtroTitulo = (titulo != null && !titulo.isBlank()) ? titulo.trim() : null;
+        String filtroGenero = (genero != null && !genero.isBlank() && !"todos".equalsIgnoreCase(genero.trim()))
+                ? genero.trim()
+                : null;
+
+        if (filtroTitulo == null && filtroGenero == null) {
+            return peliculaRepository.findAll().stream()
+                    .map(PeliculaResponseDTO::new)
+                    .toList();
+        }
+
+        return peliculaRepository.buscarConFiltros(filtroTitulo, filtroGenero).stream()
                 .map(PeliculaResponseDTO::new)
                 .toList();
     }
@@ -69,6 +84,7 @@ public class PeliculaService {
         pelicula.setTitulo(dto.getTitulo());
         pelicula.setDuracion(dto.getDuracion());
         pelicula.setClasificacion(dto.getClasificacion());
+        pelicula.setGenero(dto.getGenero() != null && !dto.getGenero().isBlank() ? dto.getGenero().trim() : null);
         pelicula.setSinopsis(dto.getSinopsis());
         pelicula.setPosterUrl(dto.getPosterUrl());
     }

@@ -15,6 +15,7 @@ public class PeliculaResponseDTO {
     private String titulo;
     private int duracion;
     private double clasificacion;
+    private String genero;
     private String sinopsis;
     private String posterUrl;
 
@@ -23,6 +24,7 @@ public class PeliculaResponseDTO {
         this.titulo = pelicula.getTitulo();
         this.duracion = pelicula.getDuracion();
         this.clasificacion = pelicula.getClasificacion();
+        this.genero = pelicula.getGenero();
         this.sinopsis = pelicula.getSinopsis();
         this.posterUrl = pelicula.getPosterUrl();
     }

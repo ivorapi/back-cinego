@@ -12,6 +12,7 @@ public class PeliculaRequestDTO {
     private String titulo;
     private int duracion;
     private double clasificacion;
+    private String genero;
     private String sinopsis;
     private String posterUrl;
 }

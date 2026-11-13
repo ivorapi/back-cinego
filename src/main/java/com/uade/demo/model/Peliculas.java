@@ -28,6 +28,9 @@ public class Peliculas {
     @Column(nullable = false)
     private double clasificacion;
 
+    @Column(length = 100)
+    private String genero;
+
     @Column(columnDefinition = "TEXT")
     private String sinopsis;
 

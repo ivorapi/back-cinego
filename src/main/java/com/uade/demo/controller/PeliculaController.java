@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.demo.dto.PeliculaRequestDTO;
@@ -27,11 +28,15 @@ public class PeliculaController {
         this.peliculaService = peliculaService;
     }
 
-    // devolver todas las peliculas
-    // get localhost:8080/api/peliculas
+    // devolver todas las peliculas (con filtros opcionales por titulo y genero/tipo)
+    // get localhost:8080/api/peliculas?titulo=...&genero=...
     @GetMapping
-    public ResponseEntity<List<PeliculaResponseDTO>> getAllPeliculas() {
-        return ResponseEntity.ok(peliculaService.findAll());
+    public ResponseEntity<List<PeliculaResponseDTO>> getAllPeliculas(
+            @RequestParam(required = false) String titulo,
+            @RequestParam(required = false) String genero,
+            @RequestParam(required = false) String tipo) {
+        String generoEfectivo = (genero != null && !genero.isBlank()) ? genero : tipo;
+        return ResponseEntity.ok(peliculaService.findAll(titulo, generoEfectivo));
     }
 
     // buscar por id
