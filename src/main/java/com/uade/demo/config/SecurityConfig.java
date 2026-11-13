@@ -88,7 +88,8 @@ public class SecurityConfig {
                                 "/api/peliculas/**",
                                 "/api/candy/**",
                                 "/api/funciones/**",
-                                "/api/salas/**")
+                                "/api/salas/**",
+                                "/api/descuentos/**")
                         .permitAll()
                         .requestMatchers("/api/usuarios/crear-admin").hasRole(Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/api/usuarios")
@@ -102,7 +103,8 @@ public class SecurityConfig {
                                 "/api/descuentos/**")
                         .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.PUT,
-                                "/api/peliculas/**", "/api/candy/**", "/api/salas/**", "/api/funciones/**")
+                                "/api/peliculas/**", "/api/candy/**", "/api/salas/**", "/api/funciones/**",
+                                "/api/descuentos/**")
                         .hasAnyRole(Rol.ADMIN.name(), Rol.SUPER_ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/peliculas/**", "/api/candy/**", "/api/salas/**", "/api/funciones/**",

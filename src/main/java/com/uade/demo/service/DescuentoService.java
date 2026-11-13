@@ -2,6 +2,7 @@ package com.uade.demo.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -33,22 +34,16 @@ public class DescuentoService {
     }
 
     public Descuento crear(DescuentoRequestDTO body) {
-        if (body.getNombre() == null || body.getNombre().isBlank()) {
-            throw new IllegalArgumentException("El nombre del descuento es requerido");
-        }
-        if (body.getPorcentaje() < 0 || body.getPorcentaje() > 100) {
-            throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 100");
-        }
-
+        validar(body);
         Descuento descuento = new Descuento();
-        descuento.setNombre(body.getNombre());
-        descuento.setPorcentaje(body.getPorcentaje());
-        descuento.setAplicaATodas(body.isAplicaATodas());
+        aplicarDatos(descuento, body);
+        return descuentoRepository.save(descuento);
+    }
 
-        if (!body.isAplicaATodas() && body.getPeliculaIds() != null && !body.getPeliculaIds().isEmpty()) {
-            descuento.setPeliculas(peliculaRepository.findAllById(body.getPeliculaIds()));
-        }
-
+    public Descuento actualizar(Long id, DescuentoRequestDTO body) {
+        validar(body);
+        Descuento descuento = obtenerODisparar(id);
+        aplicarDatos(descuento, body);
         return descuentoRepository.save(descuento);
     }
 
@@ -90,13 +85,45 @@ public class DescuentoService {
         List<String> peliculaNombres = descuento.getPeliculas().stream()
                 .map(Peliculas::getTitulo)
                 .toList();
+        List<Long> peliculaIds = descuento.getPeliculas().stream()
+                .map(Peliculas::getId)
+                .toList();
         return new DescuentoResponseDTO(
                 descuento.getId(),
                 descuento.getNombre(),
                 descuento.getPorcentaje(),
                 descuento.isActivo(),
                 descuento.isAplicaATodas(),
-                peliculaNombres);
+                peliculaNombres,
+                peliculaIds);
+    }
+
+    private void validar(DescuentoRequestDTO body) {
+        if (body.getNombre() == null || body.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre del descuento es requerido");
+        }
+        if (body.getPorcentaje() < 0 || body.getPorcentaje() > 100) {
+            throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 100");
+        }
+    }
+
+    // Lo comparten crear y actualizar. Si aplica a todas las películas, la lista queda vacía
+    private void aplicarDatos(Descuento descuento, DescuentoRequestDTO body) {
+        descuento.setNombre(body.getNombre().trim());
+        descuento.setPorcentaje(body.getPorcentaje());
+        descuento.setAplicaATodas(body.isAplicaATodas());
+
+        List<Long> peliculaIds = body.getPeliculaIds();
+        if (body.isAplicaATodas() || peliculaIds == null || peliculaIds.isEmpty()) {
+            descuento.setPeliculas(new ArrayList<>());
+        } else {
+            descuento.setPeliculas(new ArrayList<>(peliculaRepository.findAllById(peliculaIds)));
+        }
+
+        // null: al crear queda activa (el valor por defecto) y al editar no cambia
+        if (body.getActivo() != null) {
+            descuento.setActivo(body.getActivo());
+        }
     }
 
     private Descuento obtenerODisparar(Long id) {

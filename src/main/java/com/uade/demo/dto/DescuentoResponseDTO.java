@@ -18,4 +18,6 @@ public class DescuentoResponseDTO {
     private boolean activo;
     private boolean aplicaATodas;
     private List<String> peliculaNombres;
+    // El panel admin los usa para marcar las películas al editar la promo
+    private List<Long> peliculaIds;
 }

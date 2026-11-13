@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +39,14 @@ public class DescuentoController {
     @GetMapping
     public List<DescuentoResponseDTO> listar() {
         return descuentoService.listar();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DescuentoResponseDTO> actualizar(@PathVariable Long id,
+            @RequestBody DescuentoRequestDTO body) {
+        DescuentoResponseDTO actualizado = descuentoService.toResponseDTO(
+                descuentoService.actualizar(id, body));
+        return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")

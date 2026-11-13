@@ -14,4 +14,6 @@ public class DescuentoRequestDTO {
     private double porcentaje;
     private boolean aplicaATodas;
     private List<Long> peliculaIds;
+    // null: al crear queda activa y al editar no cambia
+    private Boolean activo;
 }
