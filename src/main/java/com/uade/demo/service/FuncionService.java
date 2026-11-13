@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.uade.demo.dto.funcion.FuncionRequestDTO;
 import com.uade.demo.dto.funcion.FuncionResponseDTO;
 import com.uade.demo.exception.ResourceNotFoundException;
+import com.uade.demo.model.Descuento;
 import com.uade.demo.model.Funcion;
 import com.uade.demo.model.Peliculas;
 import com.uade.demo.model.Salas;
@@ -34,10 +35,11 @@ public class FuncionService {
     private final EntradaRepository entradaRepository;
     private final ReservaRepository reservaRepository;
     private final SalaService salaService;
+    private final DescuentoService descuentoService;
 
     public FuncionService(FuncionRepository funcionRepository, PeliculaRepository peliculaRepository,
             SalaRepository salaRepository, AsientoRepository asientoRepository, EntradaRepository entradaRepository,
-            ReservaRepository reservaRepository, SalaService salaService) {
+            ReservaRepository reservaRepository, SalaService salaService, DescuentoService descuentoService) {
         this.funcionRepository = funcionRepository;
         this.peliculaRepository = peliculaRepository;
         this.salaRepository = salaRepository;
@@ -45,6 +47,7 @@ public class FuncionService {
         this.entradaRepository = entradaRepository;
         this.reservaRepository = reservaRepository;
         this.salaService = salaService;
+        this.descuentoService = descuentoService;
     }
 
     @Transactional
@@ -61,8 +64,9 @@ public class FuncionService {
     }
 
     public List<FuncionResponseDTO> getAllFunciones() {
+        List<Descuento> descuentosActivos = descuentoService.obtenerActivos();
         return funcionRepository.findAll().stream()
-                .map(this::toResponseDTO)
+                .map(funcion -> toResponseDTO(funcion, descuentosActivos))
                 .toList();
     }
 
@@ -111,7 +115,12 @@ public class FuncionService {
     }
 
     private FuncionResponseDTO toResponseDTO(Funcion funcion) {
-        return new FuncionResponseDTO(
+        return toResponseDTO(funcion, descuentoService.obtenerActivos());
+    }
+
+    // Además del precio base, informa el precio con la promo aplicada (la de mayor descuento)
+    private FuncionResponseDTO toResponseDTO(Funcion funcion, List<Descuento> descuentosActivos) {
+        FuncionResponseDTO dto = new FuncionResponseDTO(
                 funcion.getId(),
                 funcion.getPeliculaId(),
                 funcion.getPelicula() != null ? funcion.getPelicula().getTitulo() : null,
@@ -119,5 +128,15 @@ public class FuncionService {
                 funcion.getSala() != null ? funcion.getSala().getNombre() : null,
                 funcion.getHorarioInicio(),
                 funcion.getPrecio());
+
+        if (funcion.getPrecio() != null) {
+            dto.setPrecioFinal(descuentoService.calcularPrecioFinal(funcion, descuentosActivos));
+            descuentoService.descuentoAplicado(funcion, descuentosActivos).ifPresent(descuento -> {
+                dto.setDescuentoNombre(descuento.getNombre());
+                dto.setDescuentoPorcentaje(descuento.getPorcentaje());
+            });
+        }
+
+        return dto;
     }
 }

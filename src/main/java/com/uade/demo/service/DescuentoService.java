@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,10 +76,24 @@ public class DescuentoService {
     }
 
     public BigDecimal calcularPrecioFinal(Funcion funcion) {
-        List<Descuento> descuentosActivos = descuentoRepository.findByActivoTrue();
+        return calcularPrecioFinal(funcion, obtenerActivos());
+    }
+
+    // Para calcular varias funciones seguidas sin volver a buscar los descuentos cada vez
+    @Transactional(readOnly = true)
+    public List<Descuento> obtenerActivos() {
+        return descuentoRepository.findByActivoTrue();
+    }
+
+    public BigDecimal calcularPrecioFinal(Funcion funcion, List<Descuento> descuentosActivos) {
         return descuentoFactory.crearCalculador(funcion, descuentosActivos)
                 .calcularPrecio(funcion.getPrecio())
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // El descuento que se le aplica a la función (el de mayor porcentaje), si hay alguno
+    public Optional<Descuento> descuentoAplicado(Funcion funcion, List<Descuento> descuentosActivos) {
+        return descuentoFactory.elegirDescuento(funcion, descuentosActivos);
     }
 
     public DescuentoResponseDTO toResponseDTO(Descuento descuento) {
