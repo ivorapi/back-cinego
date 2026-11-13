@@ -27,6 +27,12 @@ public class FuncionResponseDTO {
     private LocalDateTime horarioInicio;
     private BigDecimal precio;
 
+    // Precio de cada entrada con la promo aplicada (igual a precio si no hay ninguna).
+    // descuentoNombre y descuentoPorcentaje quedan en null cuando no hay promo.
+    private BigDecimal precioFinal;
+    private String descuentoNombre;
+    private Double descuentoPorcentaje;
+
     public FuncionResponseDTO(Long id, Long peliculaId, String peliculaTitulo, Long salaId, String salaNombre,
             LocalDateTime horarioInicio, BigDecimal precio) {
         this.id = id;
@@ -36,5 +42,6 @@ public class FuncionResponseDTO {
         this.salaNombre = salaNombre;
         this.horarioInicio = horarioInicio;
         this.precio = precio;
+        this.precioFinal = precio;
     }
 }

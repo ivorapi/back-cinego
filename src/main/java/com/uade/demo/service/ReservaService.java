@@ -41,13 +41,15 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final FuncionRepository funcionRepository;
     private final AsientoRepository asientoRepository;
+    private final DescuentoService descuentoService;
 
-    public ReservaService( ReservaRepository reservaRepository, UsuarioRepository usuarioRepository, FuncionRepository funcionRepository, AsientoRepository asientoRepository, EntradaRepository entradaRepository) {
+    public ReservaService( ReservaRepository reservaRepository, UsuarioRepository usuarioRepository, FuncionRepository funcionRepository, AsientoRepository asientoRepository, EntradaRepository entradaRepository, DescuentoService descuentoService) {
         this.reservaRepository = reservaRepository;
         this.usuarioRepository = usuarioRepository;
         this.funcionRepository = funcionRepository;
         this.asientoRepository = asientoRepository;
         this.entradaRepository = entradaRepository;
+        this.descuentoService = descuentoService;
 
 
     }
@@ -87,9 +89,12 @@ public class ReservaService {
         validarDisponibilidad(funcion, asientos);
         
         Reserva reservaGuardada = reservaRepository.save(reserva);
-        
+
+        // Precio de cada entrada con la promo aplicada (la de mayor descuento, no son acumulables)
+        BigDecimal precioEntrada = descuentoService.calcularPrecioFinal(funcion);
+
         List<Entrada> entradas = asientos.stream()
-            .map(asiento -> crearEntrada(reservaGuardada, funcion, asiento))
+            .map(asiento -> crearEntrada(reservaGuardada, funcion, asiento, precioEntrada))
             .toList();
 
             entradaRepository.saveAll(entradas);
@@ -207,13 +212,14 @@ private void validarDisponibilidad(Funcion funcion, List<Asiento> asientos) {
 private Entrada crearEntrada(
         Reserva reserva,
         Funcion funcion,
-        Asiento asiento) {
+        Asiento asiento,
+        BigDecimal precio) {
 
     Entrada entrada = new Entrada();
     entrada.setReserva(reserva);
     entrada.setFuncion(funcion);
     entrada.setAsiento(asiento);
-    entrada.setPrecio(funcion.getPrecio());
+    entrada.setPrecio(precio);
     entrada.setCodigo("CNG-" + UUID.randomUUID());
 
     return entrada;
