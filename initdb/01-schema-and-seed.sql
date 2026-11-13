@@ -14,7 +14,7 @@ CREATE TABLE salas (
 
 CREATE TABLE peliculas (
   id BIGINT NOT NULL AUTO_INCREMENT, titulo VARCHAR(150) NOT NULL, duracion INT NOT NULL,
-  clasificacion DOUBLE NOT NULL, sinopsis TEXT, poster_url VARCHAR(255), PRIMARY KEY (id)
+  clasificacion DOUBLE NOT NULL, genero VARCHAR(100), sinopsis TEXT, poster_url VARCHAR(255), PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE candy (
@@ -72,13 +72,14 @@ INSERT INTO usuarios (id,email,nombre,apellido,password_hash,fecha_nacimiento,se
   (5,'cliente@cinego.test','Lucia','Perez','$2a$10$RF.wn0y5WODGbn0tYqk1IuuKrPg7OLmrpytepZKikDh26VbP/YqSG','1998-05-12','F','CLIENTE'),
   (6,'otro.cliente@cinego.test','Martin','Diaz','$2a$10$RF.wn0y5WODGbn0tYqk1IuuKrPg7OLmrpytepZKikDh26VbP/YqSG','1995-08-20','M','CLIENTE');
 INSERT INTO peliculas
-  (id, titulo, duracion, clasificacion, sinopsis, poster_url)
+  (id, titulo, duracion, clasificacion, genero, sinopsis, poster_url)
 VALUES
   (
     1,
     'La odisea',
     150,
     18,
+    'Fantasía, Aventura',
     'Una epopeya mitológica que sigue la historia de Odiseo y su largo viaje a casa, de 10 años de duración, tras la guerra de Troya.',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnYKwLld4fwjRJ0SdxGc_WPNnZm9zUhL8WxEB7_6QUmQ&s=10'
   ),
@@ -87,6 +88,7 @@ VALUES
     'Spiderman: brand new day',
     105,
     14,
+    'Acción, Fantasía',
     'Tras el éxito mundial sin precedentes de Spider-Man: Sin regreso a casa, Spider-Man: Un nuevo día marca un capítulo completamente nuevo para Peter Parker y Spider-Man. Han pasado cuatro años desde los acontecimientos de Sin regreso a casa, y Peter ahora es un adulto que vive completamente solo, habiéndose borrado voluntariamente de la vida y los recuerdos de sus seres queridos.',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRV4Ymhbyu4rSv8b7zluLsjzjkvZ4DtLXOjbp_OR-Rx2A&s=10'
   ),
@@ -95,6 +97,7 @@ VALUES
     'Dune: Part 3',
     130,
     18,
+    'Ciencia Ficción, Aventura',
     'Duna: Parte Tres se ambienta casi dos décadas después de que Paul Atreides tomó el control del Imperio. Convertido ahora en un despiadado Emperador, Paul deberá enfrentar las consecuencias de su reinado a medida que regresan viejos aliados, surgen aterradoras amenazas nuevas y la traición acecha en cada sombra.',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn6zu1u7Xudb3SG7pMkMZvIguVLOGU-JSs6Jd6FWZ9XA&s=10'
   ),
@@ -103,6 +106,7 @@ VALUES
     'Gladiator',
     130,
     16,
+    'Acción, Drama',
     'Un general romano es traicionado y busca venganza en la arena como gladiador.',
     'https://cdn.posteritati.com/posters/000/000/049/763/gladiator-md-web.jpg'
   ),
@@ -111,6 +115,7 @@ VALUES
     'The Godfather',
     195,
     16,
+    'Crimen, Drama',
     'El patriarca de una familia mafiosa transfiere el control de su imperio a su hijo renuente.',
     'https://cdng.europosters.eu/pod_public/1300/262788.jpg'
   ),
@@ -119,6 +124,7 @@ VALUES
     'Forrest Gump',
     142,
     13,
+    'Drama, Comedia',
     'La vida extraordinaria de un hombre simple que atraviesa décadas de la historia estadounidense.',
     'https://cdng.europosters.eu/pod_public/1300/266241.jpg'
   ),
@@ -127,6 +133,7 @@ VALUES
     'Schindler''s List',
     175,
     16,
+    'Drama, Historia',
     'Un industrial alemán salva a más de mil judíos durante el Holocausto.',
     'https://www.originalfilmart.com/cdn/shop/products/schindlers_list_1993_saul_bass_original_film_art_1600x.jpg'
   ),
@@ -135,6 +142,7 @@ VALUES
     'Fight Club',
     139,
     18,
+    'Drama, Suspenso',
     'Un oficinista insomne forma un club clandestino de combates con un carismático vendedor de jabón.',
     'https://cdng.europosters.eu/pod_public/750/262697.jpg'
   ),
@@ -143,6 +151,7 @@ VALUES
     'Se7en',
     118,
     18,
+    'Crimen, Suspenso',
     'Dos detectives persiguen a un asesino en serie que mata según los siete pecados capitales.',
     'https://www.originalfilmart.com/cdn/shop/products/Seven_1995_fr_original_film_art_a_fb6d7a06-1ac1-44f4-9d9a-afede5b090d7_1600x.jpg'
   ),
@@ -151,6 +160,7 @@ VALUES
     'Django Unchained',
     151,
     18,
+    'Acción, Western',
     'Un esclavo liberado se une a un cazarrecompensas para rescatar a su esposa.',
     'https://i.ebayimg.com/images/g/VYgAAOSwTzNkMFso/s-l1200.jpg'
   ),
@@ -159,6 +169,7 @@ VALUES
     'The Departed',
     161,
     18,
+    'Crimen, Suspenso',
     'Un policía infiltrado y un criminal infiltrado en la policía se enfrentan en Boston.',
     'https://cdng.europosters.eu/pod_public/1300/263649.jpg'
   ),
@@ -167,6 +178,7 @@ VALUES
     'Joker',
     124,
     16,
+    'Drama, Crimen',
     'Un comediante fallido desciende a la locura y se convierte en un ícono del caos en Gotham.',
     'https://cdng.europosters.eu/pod_public/750/263142.jpg'
   ),
@@ -175,16 +187,17 @@ VALUES
     'Avengers: Endgame',
     149,
     13,
+    'Acción, Ciencia Ficción',
     'Los Vengadores restantes intentan revertir el devastador plan de Thanos.',
     'https://cdng.europosters.eu/pod_public/1300/322073.jpg'
   );
 
 INSERT INTO candy (id, nombre, descripcion, precio, imagen_url) VALUES
-  (1, 'Pochoclos clásicos', 'Pochoclos salados recién preparados.', 4500.00, NULL),
-  (2, 'Pochoclos con caramelo', 'Pochoclos dulces cubiertos con caramelo.', 5200.00, NULL),
-  (3, 'Nachos con queso', 'Porción de nachos con salsa de queso.', 4800.00, NULL),
-  (4, 'Gaseosa grande', 'Gaseosa de 750 ml.', 3500.00, NULL),
-  (5, 'Combo clásico', 'Pochoclos clásicos y dos gaseosas grandes.', 10500.00, NULL);
+  (1, 'Pochoclos clásicos', 'Pochoclos salados recién preparados.', 4500.00, '/candy/pochoclos-clasicos.jpg'),
+  (2, 'Pochoclos con caramelo', 'Pochoclos dulces cubiertos con caramelo.', 5200.00, '/candy/pochoclos-caramelo.jpg'),
+  (3, 'Nachos con queso', 'Porción de nachos con salsa de queso.', 4800.00, '/candy/nachos-queso.jpg'),
+  (4, 'Gaseosa grande', 'Gaseosa de 750 ml.', 3500.00, '/candy/gaseosa-grande.jpg'),
+  (5, 'Combo clásico', 'Pochoclos clásicos y dos gaseosas grandes.', 10500.00, '/candy/combo-clasico.jpg');
 
 INSERT INTO asientos (id,sala_id,fila,numero) VALUES
   (1,1,'A',1),(2,1,'A',2),(3,1,'B',1),(4,1,'B',2),(5,2,'A',1),(6,2,'A',2),(7,2,'B',1),(8,2,'B',2),
