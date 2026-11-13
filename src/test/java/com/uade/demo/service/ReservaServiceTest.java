@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -47,9 +48,17 @@ class ReservaServiceTest {
     @Mock private FuncionRepository funcionRepository;
     @Mock private AsientoRepository asientoRepository;
     @Mock private EntradaRepository entradaRepository;
+    @Mock private DescuentoService descuentoService;
     @Captor private ArgumentCaptor<List<Entrada>> entradasCaptor;
 
     @InjectMocks private ReservaService reservaService;
+
+    // Por defecto no hay promos: el precio final es el de la función
+    @BeforeEach
+    void sinDescuentos() {
+        org.mockito.Mockito.lenient().when(descuentoService.calcularPrecioFinal(any(Funcion.class)))
+                .thenAnswer(invocation -> invocation.<Funcion>getArgument(0).getPrecio());
+    }
 
     @AfterEach
     void limpiarContextoDeSeguridad() {
@@ -86,6 +95,30 @@ class ReservaServiceTest {
         assertThat(respuesta.getIdReserva()).isEqualTo(50L);
         assertThat(respuesta.getIdsEntradas()).containsExactly(100L, 101L);
         assertThat(respuesta.getTotal()).isEqualByComparingTo("16000.00");
+    }
+
+    @Test
+    void createReserva_cobraCadaEntradaConElPrecioConDescuento() {
+        Usuarios cliente = clienteAutenticado();
+        Funcion funcion = funcionDePrueba();
+        List<Asiento> asientos = List.of(asiento(10L, funcion.getSala()), asiento(11L, funcion.getSala()));
+        ReservaRequestDTO request = request(1L, List.of(10L, 11L));
+
+        when(usuarioRepository.findByEmail(cliente.getEmail())).thenReturn(java.util.Optional.of(cliente));
+        when(funcionRepository.findByIdForUpdate(1L)).thenReturn(java.util.Optional.of(funcion));
+        when(asientoRepository.findAllById(request.getAsientoIds())).thenReturn(asientos);
+        when(entradaRepository.existeEntradaActiva(anyLong(), anyLong(), any())).thenReturn(false);
+        when(reservaRepository.save(any(Reserva.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(entradaRepository.saveAll(entradasCaptor.capture())).thenAnswer(invocation -> invocation.getArgument(0));
+        // Una promo del 15% sobre $ 8.000
+        when(descuentoService.calcularPrecioFinal(funcion)).thenReturn(new BigDecimal("6800.00"));
+
+        var respuesta = reservaService.createReserva(request);
+
+        assertThat(entradasCaptor.getValue())
+                .extracting(Entrada::getPrecio)
+                .allSatisfy(precio -> assertThat(precio).isEqualByComparingTo("6800.00"));
+        assertThat(respuesta.getTotal()).isEqualByComparingTo("13600.00");
     }
 
     @Test
